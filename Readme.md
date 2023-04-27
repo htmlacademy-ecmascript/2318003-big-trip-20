@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Алексей Рой](https://up.htmlacademy.ru/ecmascript/20/user/2318003).
-* Наставник: `Неизвестно`.
+* Наставник: [Алексей Хабиров] (https://htmlacademy.ru/profile/alex_khab).
 
 ---
 
