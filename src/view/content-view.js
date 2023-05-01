@@ -1,7 +1,7 @@
 import {createElement} from '../render.js';
 
-const ContentTemplateText = `<ul class="trip-events__list">
-<li class="trip-events__item">
+
+const createSortTemplate = () => `<li class="trip-events__item">
   <div class="event">
     <time class="event__date" datetime="2019-03-18">MAR 18</time>
     <div class="event__type">
@@ -37,10 +37,7 @@ const ContentTemplateText = `<ul class="trip-events__list">
       <span class="visually-hidden">Open event</span>
     </button>
   </div>
-</li>
-</ul>`;
-
-const createSortTemplate = () => ContentTemplateText;
+</li>`;
 
 export default class ContentView {
   getTemplate() {
