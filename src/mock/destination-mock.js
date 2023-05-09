@@ -10,8 +10,8 @@ const generateDestination = () => {
     description: CITY_DESCRIPTION,
     pictures: [
       {
-        'src': `https://loremflickr.com/248/152?random=${crypto.randomUUID()}`,
-        'description': `${city} description`
+        src: `https://loremflickr.com/248/152?random=${crypto.randomUUID()}`,
+        description: `${city} description`
       }
     ]
   };

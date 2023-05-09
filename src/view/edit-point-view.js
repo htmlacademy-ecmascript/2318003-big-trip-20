@@ -2,44 +2,58 @@ import {createElement} from '../render.js';
 import {formatStringToDateTime, capitalize} from '../utils.js';
 import {WAYPOINT_TYPE, CITIES, POINT_EMPTY} from '../constant.js';
 
-const createOffersTemplate = ({title, price}) => (
-  `
-  <div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}" type="checkbox" name="event-offer-${title}" checked>
+const createOffersTemplate = ({offer, point}) => {
+  const {id, title, price} = offer;
+  const {offers} = point;
+  const isChecked = offers.includes(id) ? 'checked' : '';
+  return (`<div class="event__offer-selector">
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}" type="checkbox" name="event-offer-${title}" ${isChecked}>
     <label class="event__offer-label" for="event-offer-${title}-1">
       <span class="event__offer-title">${title}</span>
       &plus;&euro;&nbsp;
       <span class="event__offer-price">${price}</span>
     </label>
-  </div>
-  `
-);
+  </div>`);
+};
 
 
 const createEventTypeTemplate = (type) => {
   const value = capitalize(type);
+
   return (
-    `
-    <div class="event__type-item">
+    `<div class="event__type-item">
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${value}</label>
-    </div>
-    `
+    </div>`
   );
 };
 
-const createItemOfCitiesTemplate = (city) => (
-  `
-  <option value=${city}></option>
-  `
-);
+const createItemOfCitiesTemplate = (city) => `<option value=${city}></option>`;
 
 const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
-  const {id, basePrice, dateFrom, dateTo, type} = point;
+  const {id, basePrice, dateFrom, dateTo, type, offers} = point;
   const {description, name} = pointDestinations;
-  const eventTypeMurkup = WAYPOINT_TYPE.map((waypointType) => createEventTypeTemplate(waypointType));
-  const itemsOfCitiesMurkup = CITIES.map((city) => createItemOfCitiesTemplate(city));
-  const offersListMarkup = pointOffers.map((offer) => createOffersTemplate(offer));
+  const eventTypeMarkup = WAYPOINT_TYPE.map(createEventTypeTemplate).join('');
+  const citiesMarkup = CITIES.map(createItemOfCitiesTemplate).join('');
+
+  const offersListMarkup = pointOffers.map((offer) => createOffersTemplate({offer, point})).join('');
+
+  const createOffersMarkup = (offer) => {
+    if (offer.length) {
+      return (
+        `<section class="event__section  event__section--offers">
+        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+
+          <div class="event__available-offers">
+            ${offersListMarkup}
+          </div>
+        </section>`
+      );
+    }
+    return '';
+  };
+
+
   return (`<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
@@ -54,7 +68,7 @@ const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
 
-              ${eventTypeMurkup.join('')}
+              ${eventTypeMarkup}
 
             </fieldset>
           </div>
@@ -66,7 +80,7 @@ const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${name} list="destination-list-1">
           <datalist id="destination-list-1">
-            ${itemsOfCitiesMurkup.join('')}
+            ${citiesMarkup}
           </datalist>
         </div>
 
@@ -90,13 +104,8 @@ const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
         <button class="event__reset-btn" type="reset">Delete</button>
       </header>
       <section class="event__details">
-        <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
-          <div class="event__available-offers">
-            ${offersListMarkup.join('')}
-          </div>
-        </section>
+        ${createOffersMarkup(offers)}
 
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>

@@ -1,4 +1,4 @@
-import ContentView from '../view/content-view.js';
+import ContentView from '../view/point-view.js';
 import EditPointView from '../view/edit-point-view.js';
 import SortView from '../view/sort-view.js';
 import {render} from '../render.js';
@@ -14,7 +14,7 @@ export default class TripPresenter {
     this.offersModel = offersModel;
     this.pointsModel = pointsModel;
 
-    this.points = [...pointsModel.get()];
+    this.points = [...pointsModel.getData()];
   }
 
   init() {
@@ -27,8 +27,8 @@ export default class TripPresenter {
         pointOffers: this.offersModel.getByType(this.points[0].type)
       }),
       this.listView.getElement());
-    for (let i = 1; i < this.points.length; i++) {
-      const point = this.points[i];
+
+    this.points.forEach((point) => {
       render(
         new ContentView({
           point,
@@ -36,6 +36,6 @@ export default class TripPresenter {
           pointOffer: this.offersModel.getByType(point.type)
         }),
         this.listView.getElement());
-    }
+    });
   }
 }

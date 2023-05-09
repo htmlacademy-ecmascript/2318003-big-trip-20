@@ -1,42 +1,61 @@
 import {createElement} from '../render.js';
-import {formatStringToDateTime, formatStringToShortDate, formatStringToTime, calculateTimeDifference} from '../utils.js';
+import {
+  formatStringToDateTime,
+  formatStringToShortDate,
+  formatStringToTime,
+  calculateTimeDifference
+} from '../utils.js';
 
 const createOfferTemplate = ({title, price}) => (
-  `
-  <li class="event__offer">
+  `<li class="event__offer">
     <span class="event__offer-title">${title}</span>
     &plus;&euro;&nbsp;
     <span class="event__offer-price">${price}</span>
-  </li>
-  `
+  </li>`
 );
 
 const createContentTemplate = ({point, pointDestination, pointOffers}) => {
-  const {basePrice, dateFrom, dateTo, isFavorite, type} = point;
+  const {basePrice, dateFrom, dateTo, isFavorite, type, offers} = point;
   const {name} = pointDestination;
-  const offersListMarkup = pointOffers.map((el) => createOfferTemplate(el));
+
+  const getOfferById = (id) => {
+    for (let i = 0; i < pointOffers.length; i++) {
+      if (pointOffers[i].id === id) {
+        return pointOffers[i];
+      }
+    }
+  };
+
+  const dateTimeFrom = formatStringToDateTime(dateFrom);
+  const dateTimeTo = formatStringToDateTime(dateTo);
+  const shortDateFrom = formatStringToShortDate(dateFrom);
+  const timeFrom = formatStringToTime(dateFrom);
+  const timeTo = formatStringToTime(dateTo);
+  const offersList = (offers.length) ? offers.map(getOfferById) : [];
+  const offersListMarkup = (offersList) ? offersList.map(createOfferTemplate).join('') : [];
+
   return (
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime=${formatStringToDateTime(dateFrom)}>${formatStringToShortDate(dateFrom)}</time>
+        <time class="event__date" datetime=${dateTimeFrom}>${shortDateFrom}</time>
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${type} ${name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime=${formatStringToDateTime(dateFrom)}>${formatStringToTime(dateFrom)}</time>
+            <time class="event__start-time" datetime=${formatStringToDateTime(dateFrom)}>${timeFrom}</time>
             &mdash;
-            <time class="event__end-time" datetime=${formatStringToDateTime(dateTo)}>${formatStringToTime(dateTo)}</time>
+            <time class="event__end-time" datetime=${dateTimeTo}>${timeTo}</time>
           </p>
-          <p class="event__duration">${calculateTimeDifference(formatStringToTime(dateFrom), formatStringToTime(dateTo))}</p>
+          <p class="event__duration">${calculateTimeDifference(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${offersListMarkup.join('')}
+          ${offersListMarkup}
         </ul>
         <button class="event__favorite-btn event__favorite-btn${isFavorite ? ' event__favorite-btn--active' : ''}" type="button">
           <span class="visually-hidden">Add to favorite</span>
