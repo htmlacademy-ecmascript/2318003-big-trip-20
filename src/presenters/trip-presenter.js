@@ -29,7 +29,7 @@ export default class TripPresenter {
     render(this.#listView, this.#tripContainer);
 
     this.#points.forEach((point) => {
-      this.#renderTask({
+      this.#renderPoint({
         point,
         pointDestination: this.#destinationsModel.getById(point.destination),
         pointOffer: this.#offersModel.getByType(point.type)
@@ -37,7 +37,7 @@ export default class TripPresenter {
     });
   }
 
-  #renderTask({point, pointDestination, pointOffer}) {
+  #renderPoint({point, pointDestination, pointOffer}) {
     const escKeyDownHandler = (evt) => {
       if (evt.key === 'Escape') {
         evt.preventDefault();

@@ -31,7 +31,7 @@ const createEventTypeTemplate = (type) => {
 const createItemOfCitiesTemplate = (city) => `<option value=${city}></option>`;
 
 const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
-  const {id, basePrice, dateFrom, dateTo, type, offers} = point;
+  const {id, basePrice, dateFrom, dateTo, type} = point;
   const {description, name} = pointDestinations;
   const eventTypeMarkup = WAYPOINT_TYPE.map(createEventTypeTemplate).join('');
   const citiesMarkup = CITIES.map(createItemOfCitiesTemplate).join('');
@@ -108,7 +108,7 @@ const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
       </header>
       <section class="event__details">
 
-        ${createOffersMarkup(offers)}
+        ${createOffersMarkup(pointOffers)}
 
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
