@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {formatStringToDateTime, capitalize} from '../utils.js';
 import {WAYPOINT_TYPE, CITIES, POINT_EMPTY} from '../constant.js';
 
@@ -102,6 +102,9 @@ const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__rollup-btn" type="button">
+          <span class="visually-hidden">Open event</span>
+        </button>
       </header>
       <section class="event__details">
 
@@ -116,31 +119,41 @@ const createEditPointTemplate = ({point, pointDestinations, pointOffers}) => {
   </li>`
   );
 };
-export default class EditPointView {
+export default class EditPointView extends AbstractView{
+  debugger;
+  #point = POINT_EMPTY;
+  #pointDestinations;
+  #pointOffers;
+  #handleFormSubmit = null;
+  #handleCloseEditClick = null;
 
-  constructor({point = POINT_EMPTY, pointDestinations, pointOffers}) {
-    this.point = point;
-    this.pointDestinations = pointDestinations;
-    this.pointOffers = pointOffers;
+  constructor({point = POINT_EMPTY, pointDestination, pointOffer, onFormSubmit, onCloseEditClick}) {
+    super();
+    this.#point = point;
+    this.#pointDestinations = pointDestination;
+    this.#pointOffers = pointOffer;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleCloseEditClick = onCloseEditClick;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditClickHandler);
   }
 
-  getTemplate() {
+  get template() {
     return createEditPointTemplate({
-      point: this.point,
-      pointDestinations: this.pointDestinations,
-      pointOffers: this.pointOffers
+      point: this.#point,
+      pointDestinations: this.#pointDestinations,
+      pointOffers: this.#pointOffers
     });
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #closeEditClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleCloseEditClick();
+  };
 }
