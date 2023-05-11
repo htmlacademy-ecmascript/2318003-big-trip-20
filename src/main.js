@@ -1,4 +1,5 @@
-import {render, RenderPosition} from './render.js';
+import {render} from './framework/render.js';
+import {RenderPosition} from './render.js';
 import FiltersView from './view/filter-view.js';
 import TripPresenter from './presenters/trip-presenter.js';
 
