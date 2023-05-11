@@ -1,5 +1,5 @@
 import {render, replace} from '../framework/render.js';
-import ContentView from '../view/point-view.js';
+import PointView from '../view/point-view.js';
 import EditPointView from '../view/edit-point-view.js';
 import SortView from '../view/sort-view.js';
 
@@ -41,12 +41,11 @@ export default class TripPresenter {
     const escKeyDownHandler = (evt) => {
       if (evt.key === 'Escape') {
         evt.preventDefault();
-        replaceEditFormToPoint();
-        document.removeEventListener('keydown', escKeyDownHandler);
+        closeForm();
       }
     };
 
-    const pointComponent = new ContentView({
+    const pointComponent = new PointView({
       point,
       pointDestination,
       pointOffer,
@@ -61,12 +60,10 @@ export default class TripPresenter {
       pointDestination,
       pointOffer,
       onFormSubmit: () => {
-        replaceEditFormToPoint();
-        document.addEventListener('keydown', escKeyDownHandler);
+        closeForm();
       },
       onCloseEditClick: () => {
-        replaceEditFormToPoint();
-        document.addEventListener('keydown', escKeyDownHandler);
+        closeForm();
       }
     });
 
@@ -76,6 +73,11 @@ export default class TripPresenter {
 
     function replaceEditFormToPoint() {
       replace(pointComponent, editPointComponent);
+    }
+
+    function closeForm() {
+      replaceEditFormToPoint();
+      document.removeEventListener('keydown', escKeyDownHandler);
     }
 
     render(pointComponent, this.#listView.element);
