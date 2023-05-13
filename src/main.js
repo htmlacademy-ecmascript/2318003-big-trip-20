@@ -2,6 +2,7 @@ import {render} from './framework/render.js';
 import {RenderPosition} from './render.js';
 import FiltersView from './view/filter-view.js';
 import TripPresenter from './presenters/trip-presenter.js';
+import {generateFilter} from './mock/filter-mock.js';
 
 import MockService from './mock/service-mock.js';
 import DestinationsModel from './model/destination-model.js';
@@ -16,6 +17,7 @@ const mockService = new MockService();
 const destinationsModel = new DestinationsModel(mockService);
 const offersModel = new OffersModel(mockService);
 const pointsModel = new PointsModel(mockService);
+const filters = generateFilter(pointsModel.points);
 
 const tripPresenter = new TripPresenter({
   tripContainer: eventListElement,
@@ -24,5 +26,5 @@ const tripPresenter = new TripPresenter({
   pointsModel
 });
 
-render(new FiltersView(), tripControlsFilters, RenderPosition.BEFOREEND);
+render(new FiltersView({filters}), tripControlsFilters, RenderPosition.BEFOREEND);
 tripPresenter.init();

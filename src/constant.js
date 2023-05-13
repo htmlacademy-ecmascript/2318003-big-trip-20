@@ -33,6 +33,26 @@ const POINT_EMPTY = {
   type: DEFAULT_TYPE
 };
 
+const filterType = [
+  {
+    type: 'everything',
+    message: 'Click New Event to create your first point',
+  },
+  {
+    type: 'future',
+    message: 'There are no future events now',
+  },
+  {
+    type: 'present',
+    message: 'There are no present events now',
+  },
+  {
+    type:'past',
+    message: 'There are no past events now',
+  }
+];
+
+
 export {
   WAYPOINT_TYPE,
   CITIES,
@@ -42,5 +62,6 @@ export {
   DESTINATION_COUNT,
   OFFER_COUNT,
   POINT_COUNT,
-  POINT_EMPTY
+  POINT_EMPTY,
+  filterType,
 };

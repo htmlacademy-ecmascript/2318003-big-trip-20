@@ -46,7 +46,7 @@ export default class MockService {
 
   generatePoints() {
     return Array.from(
-      {length: POINT_COUNT},
+      {length: getRandomInteger(0, POINT_COUNT)},
       () => {
         const type = getRandomArrayElement(WAYPOINT_TYPE);
         const destination = getRandomArrayElement(this.destinations);

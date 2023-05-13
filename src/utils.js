@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
-import {DURATION} from './constant.js';
+import {DURATION, filterType} from './constant.js';
 
 import duration from 'dayjs/plugin/duration';
+import isBetween from 'dayjs/plugin/isBetween.js';
 dayjs.extend(duration);
+dayjs.extend(isBetween);
 
 const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
 
@@ -54,6 +56,38 @@ const capitalize = (str) => (str[0].toUpperCase() + str.slice(1));
 
 const randomBoolean = () => Math.random() >= 0.5;
 
+const isPointFuture = (point) => dayjs().isBefore(dayjs(point.dateFrom));
+const isPointPresent = (point) => dayjs().isBetween(dayjs(point.dateFrom), dayjs(point.dateTo));
+const isPointPast = (point) => dayjs().isAfter(dayjs(point.dateTo));
+
+const filter = (points) => {
+  const filterEverything = points.slice();
+
+  const filterFuture = [];
+  const filterPresent = [];
+  const filterPast = [];
+
+  points.forEach((point) => {
+    if (isPointFuture(point)) {
+      filterFuture.push(point);
+    }
+    if (isPointPresent(point)) {
+      filterPresent.push(point);
+    }
+    if (isPointPast(point)) {
+      filterPast.push(point);
+    }
+  });
+
+  filterType[0].filterPoints = filterEverything;
+  filterType[1].filterPoints = filterFuture;
+  filterType[2].filterPoints = filterPresent;
+  filterType[3].filterPoints = filterPast;
+
+
+  return (filterType);
+};
+
 export {
   getRandomArrayElement,
   getRandomInteger,
@@ -63,5 +97,9 @@ export {
   formatStringToTime,
   calculateTimeDifference,
   capitalize,
-  randomBoolean
+  randomBoolean,
+  isPointFuture,
+  isPointPresent,
+  isPointPast,
+  filter,
 };
