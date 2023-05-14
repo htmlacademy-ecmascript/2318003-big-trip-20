@@ -1,4 +1,4 @@
-import {render, replace} from '../framework/render.js';
+import {render, replace, remove} from '../framework/render.js';
 import PointView from '../view/point-view.js';
 import EditPointView from '../view/edit-point-view.js';
 import SortView from '../view/sort-view.js';
@@ -26,19 +26,25 @@ export default class TripPresenter {
   }
 
   init() {
+    const sortView = new SortView();
+
+    render(sortView, this.#tripContainer);
+
     if (!this.#points.length) {
+      remove(sortView);
       render(new EmptyView(), this.#tripContainer);
-    } else {
-      render(new SortView(), this.#tripContainer);
-      render(this.#listView, this.#tripContainer);
-      this.#points.forEach((point) => {
-        this.#renderPoint({
-          point,
-          pointDestination: this.#destinationsModel.getById(point.destination),
-          pointOffer: this.#offersModel.getByType(point.type)
-        });
-      });
+
+      return;
     }
+
+    render(this.#listView, this.#tripContainer);
+    this.#points.forEach((point) => {
+      this.#renderPoint({
+        point,
+        pointDestination: this.#destinationsModel.getById(point.destination),
+        pointOffer: this.#offersModel.getByType(point.type)
+      });
+    });
   }
 
   #renderPoint({point, pointDestination, pointOffer}) {

@@ -1,12 +1,10 @@
-import {filter} from '../utils.js';
+import {getFilterData} from '../utils.js';
 
-const generateFilter = (points) => {
-  const filters = filter(points);
-  for (let i = 0; i < filter(points).length; i++) {
-    filters[i].count = filters[i].filterPoints.length;
-  }
-  return filters;
-
-};
+const generateFilter = (points) => Object.entries(getFilterData(points)).map(
+  ([filterType, filterPoints]) => ({
+    type: filterType,
+    count: filterPoints.length,
+  }),
+);
 
 export {generateFilter};

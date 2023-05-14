@@ -33,24 +33,19 @@ const POINT_EMPTY = {
   type: DEFAULT_TYPE
 };
 
-const filterType = [
-  {
-    type: 'everything',
-    message: 'Click New Event to create your first point',
-  },
-  {
-    type: 'future',
-    message: 'There are no future events now',
-  },
-  {
-    type: 'present',
-    message: 'There are no present events now',
-  },
-  {
-    type:'past',
-    message: 'There are no past events now',
-  }
-];
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
+
+const FilterEmptyMessage = {
+  EVERYTHING: 'Click New Event to create your first point',
+  FUTURE: 'There are no future events now',
+  PRESENT: 'There are no present events now',
+  PAST: 'There are no past events now'
+};
 
 
 export {
@@ -63,5 +58,6 @@ export {
   OFFER_COUNT,
   POINT_COUNT,
   POINT_EMPTY,
-  filterType,
+  FilterType,
+  FilterEmptyMessage
 };
