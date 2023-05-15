@@ -1,7 +1,8 @@
-import {render, replace} from '../framework/render.js';
+import {render, replace, remove} from '../framework/render.js';
 import PointView from '../view/point-view.js';
 import EditPointView from '../view/edit-point-view.js';
 import SortView from '../view/sort-view.js';
+import EmptyView from '../view/list-empty-view.js';
 
 import TripEventsListView from '../view/trip-events-list-view.js';
 
@@ -25,9 +26,18 @@ export default class TripPresenter {
   }
 
   init() {
-    render(new SortView(), this.#tripContainer);
-    render(this.#listView, this.#tripContainer);
+    const sortView = new SortView();
 
+    render(sortView, this.#tripContainer);
+
+    if (!this.#points.length) {
+      remove(sortView);
+      render(new EmptyView(), this.#tripContainer);
+
+      return;
+    }
+
+    render(this.#listView, this.#tripContainer);
     this.#points.forEach((point) => {
       this.#renderPoint({
         point,
