@@ -10,8 +10,8 @@ const Mode = {
 export default class PointPresenter {
   #listView = null;
   #point = null;
-  #pointDestination = null;
-  #pointOffer = null;
+  #pointDestinations = null;
+  #pointOffers = null;
 
   #pointComponent = null;
   #editPointComponent = null;
@@ -25,43 +25,42 @@ export default class PointPresenter {
     this.#handleModeChange = onModeChange;
   }
 
-  init({point, pointDestination, pointOffer}) {
+  init({point, pointDestinations, pointOffers}) {
     this.#point = point;
-    this.#pointDestination = pointDestination;
-    this.#pointOffer = pointOffer;
+    this.#pointDestinations = pointDestinations;
+    this.#pointOffers = pointOffers;
 
     const prevPointComponent = this.#pointComponent;
     const prevEditPointComponent = this.#editPointComponent;
 
     this.#pointComponent = new PointView({
       point: this.#point,
-      pointDestination: this.#pointDestination,
-      pointOffer: this.#pointOffer,
+      pointDestinations: this.#pointDestinations,
+      pointOffers: this.#pointOffers,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
 
     this.#editPointComponent = new EditPointView({
       point: this.#point,
-      pointDestination: this.#pointDestination,
-      pointOffer: this.#pointOffer,
+      pointDestinations: this.#pointDestinations,
+      pointOffers: this.#pointOffers,
       onFormSubmit: this.#handleFormSubmit,
       onCloseEditClick: this.#handleCloseCLick
     });
 
     render(this.#pointComponent, this.#listView.element);
 
-    if (this.#mode === Mode.DEFAULT) {
+    if (prevPointComponent === null || prevEditPointComponent === null) {
       render(this.#pointComponent, this.#listView.element);
-
       return;
     }
 
-    if (this.#mode === Mode.EDITING) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#listView.element.contains(prevEditPointComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#editPointComponent, prevEditPointComponent);
     }
 

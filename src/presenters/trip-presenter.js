@@ -14,7 +14,6 @@ export default class TripPresenter {
   #destinationsModel = null;
   #offersModel = null;
   #pointsModel = null;
-  #pointDestination = null;
 
   #sortView = new SortView;
   #emptyView = new EmptyView();
@@ -50,8 +49,8 @@ export default class TripPresenter {
     this.#pointPresenters.get(updatedPoint.id).
       init({
         point: updatedPoint,
-        pointDestination: this.#destinationsModel.getById(updatedPoint.destination),
-        pointOffer: this.#offersModel.getByType(updatedPoint.type)
+        pointDestinations: this.#destinationsModel.getById(updatedPoint.destination),
+        pointOffers: this.#offersModel.getByType(updatedPoint.type)
       });
   };
 
@@ -72,19 +71,19 @@ export default class TripPresenter {
     this.#points.forEach((point) => {
       this.#renderPoint({
         point,
-        pointDestination: this.#destinationsModel.getById(point.destination),
-        pointOffer: this.#offersModel.getByType(point.type)
+        pointDestinations: this.#destinationsModel.getById(point.destination),
+        pointOffers: this.#offersModel.getByType(point.type)
       });
     });
   }
 
-  #renderPoint({point, pointDestination, pointOffer}) {
+  #renderPoint({point, pointDestinations, pointOffers}) {
     const pointPresenter = new PointPresenter({
       listView: this.#listView,
       onDataChange: this.#handlePointChange,
       onModeChange: this.#handleModeChange
     });
-    pointPresenter.init({point, pointDestination, pointOffer});
+    pointPresenter.init({point, pointDestinations, pointOffers});
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 }
