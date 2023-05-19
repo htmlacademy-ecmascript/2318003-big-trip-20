@@ -39,17 +39,17 @@ const formatStringToTime = (date) => dayjs(date).format('HH:mm');
 const calculateTimeDifference = (firstDate, secondDate) => {
   const gap = dayjs.duration(dayjs(secondDate).diff(dayjs(firstDate)), 'millisecond');
 
-  let differnese = '';
+  let difference = '';
 
   if (+gap.format('D')) {
-    differnese += ` ${gap.format('DD[D]')}`;
+    difference += ` ${gap.format('DD[D]')}`;
   }
 
   if (+gap.format('H')) {
-    differnese += ` ${gap.format('HH[H]')}`;
+    difference += ` ${gap.format('HH[H]')}`;
   }
 
-  return (differnese += ` ${gap.format('mm[M]')}`);
+  return (difference += ` ${gap.format('mm[M]')}`);
 };
 
 const capitalize = (str) => (str[0].toUpperCase() + str.slice(1));
@@ -60,34 +60,26 @@ const isPointFuture = (point) => dayjs().isBefore(dayjs(point.dateFrom));
 const isPointPresent = (point) => dayjs().isBetween(dayjs(point.dateFrom), dayjs(point.dateTo));
 const isPointPast = (point) => dayjs().isAfter(dayjs(point.dateTo));
 
-const getFilterData = (points) => {
-  const filterEverything = points.slice();
+const getFilterData = (points) => points.reduce((acc, point) => {
+  if (isPointFuture(point)) {
+    acc[[FilterType.FUTURE]].push(point);
+  }
+  if (isPointPresent(point)) {
+    acc[[FilterType.PRESENT]].push(point);
+  }
+  if (isPointPast(point)) {
+    acc[[FilterType.PAST]].push(point);
+  }
 
-  const filterFuture = [];
-  const filterPresent = [];
-  const filterPast = [];
+  return acc;
+}, {
+  [FilterType.EVERYTHING]: points,
+  [FilterType.FUTURE]: [],
+  [FilterType.PRESENT]: [],
+  [FilterType.PAST]: []
+});
 
-  points.forEach((point) => {
-    if (isPointFuture(point)) {
-      filterFuture.push(point);
-    }
-    if (isPointPresent(point)) {
-      filterPresent.push(point);
-    }
-    if (isPointPast(point)) {
-      filterPast.push(point);
-    }
-  });
-
-  const result = {
-    [FilterType.EVERYTHING]: filterEverything,
-    [FilterType.FUTURE]: filterFuture,
-    [FilterType.PRESENT]: filterPresent,
-    [FilterType.PAST]: filterPast
-  };
-
-  return (result);
-};
+const updatePoint = (points, update) => points.map((point) => point.id === update.id ? update : point);
 
 export {
   getRandomArrayElement,
@@ -103,4 +95,5 @@ export {
   isPointPresent,
   isPointPast,
   getFilterData,
+  updatePoint
 };

@@ -7,24 +7,26 @@ const createFilterItemTemplate = (filter) => {
 
   return (
     `<div class="trip-filters__filter">
-      <input id="filter-${type}"
+      <input
+        id="filter-${type}"
         class="trip-filters__filter-input  visually-hidden"
-          type="radio"
-            name="trip-filter" ${isDisabled}
-              value="${type}" checked>
+        type="radio"
+        name="trip-filter" ${isDisabled}
+        value="${type}"
+        checked
+      >
       <label class="trip-filters__filter-label" for="filter-${type}">${capitalize(type)}</label>
     </div>`
   );
 };
 
 const createFiltersTemplate = (filterItems) => {
-  let filterItemsTemplate = '';
-  filterItems.map((filterItem) => (filterItemsTemplate += createFilterItemTemplate(filterItem)));
+  const filtersMarkup = filterItems.map(createFilterItemTemplate).join('');
 
   return (
     `<form class="trip-filters" action="#" method="get">
 
-      ${filterItemsTemplate}
+      ${filtersMarkup}
 
       <button class="visually-hidden" type="submit">Accept filter</button>
     </form>`
