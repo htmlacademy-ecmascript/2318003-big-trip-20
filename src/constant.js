@@ -47,6 +47,12 @@ const FilterEmptyMessage = {
   [FilterType.PAST]: 'There are no past events now'
 };
 
+const SortType = {
+  DAY: 'day',
+  TIME: 'time',
+  PRICE: 'price'
+};
+
 
 export {
   WAYPOINT_TYPE,
@@ -59,5 +65,6 @@ export {
   POINT_COUNT,
   POINT_EMPTY,
   FilterType,
-  FilterEmptyMessage
+  FilterEmptyMessage,
+  SortType
 };
