@@ -1,5 +1,5 @@
 import {render, remove, RenderPosition} from '../framework/render.js';
-import {updatePoint} from '../utils.js';
+import {updatePoint, sortTypeTime, sortTypePrice} from '../utils.js';
 import {SortType} from '../constant.js';
 
 import dayjs from 'dayjs';
@@ -21,6 +21,8 @@ export default class TripPresenter {
   #pointsModel = null;
 
   #sortView = null;
+  #updatedSortView = null;
+
   #emptyView = new EmptyView();
 
   #points = [];
@@ -67,41 +69,44 @@ export default class TripPresenter {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
+
   #sortPoints(sortType) {
     switch (sortType) {
       case SortType.TIME:
 
-        this.#points.sort((a, b) => {
-          const durationA = dayjs.duration(dayjs(a.dateTo).diff(dayjs(a.dateFrom))).asMilliseconds();
-          const durationB = dayjs.duration(dayjs(b.dateTo).diff(dayjs(b.dateFrom))).asMilliseconds();
-          return durationB - durationA;
-        });
+        this.#points.sort(sortTypeTime);
         break;
 
       case SortType.PRICE:
-        this.#points.sort((a, b) => b.basePrice - a.basePrice);
+        this.#points.sort(sortTypePrice);
         break;
-      default: this.#points = [...this.#sourceTripPoints];
+
+      case SortType.DAY:
+        this.#points = [...this.#sourceTripPoints];
+        break;
     }
     this.#currentSortType = sortType;
   }
 
   #handleSortTypeChange = (sortType) => {
-    if (this.#currentSortType === sortType) {
-      return;
-    }
-
     this.#sortPoints(sortType);
     this.#clearPoints();
     this.#renderPoints();
+    this.#removeSort();
+    this.#renderSort();
   };
 
   #renderSort() {
     this.#sortView = new SortView({
-      onSortTypeChange: this.#handleSortTypeChange
+      onSortTypeChange: this.#handleSortTypeChange,
+      sortType: this.#currentSortType
     });
 
     render(this.#sortView, this.#listView.element, RenderPosition.AFTERBEGIN);
+  }
+
+  #removeSort() {
+    remove(this.#sortView);
   }
 
   #renderEmpty() {

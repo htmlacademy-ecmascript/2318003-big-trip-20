@@ -49,8 +49,10 @@ const FilterEmptyMessage = {
 
 const SortType = {
   DAY: 'day',
+  EVENT: 'event',
   TIME: 'time',
-  PRICE: 'price'
+  PRICE: 'price',
+  OFFERS: 'offers'
 };
 
 
