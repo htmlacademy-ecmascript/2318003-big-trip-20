@@ -79,6 +79,14 @@ const getFilterData = (points) => points.reduce((acc, point) => {
   [FilterType.PAST]: []
 });
 
+const sortTypeTime = (a, b) => {
+  const durationA = dayjs.duration(dayjs(a.dateTo).diff(dayjs(a.dateFrom))).asMilliseconds();
+  const durationB = dayjs.duration(dayjs(b.dateTo).diff(dayjs(b.dateFrom))).asMilliseconds();
+  return durationB - durationA;
+};
+
+const sortTypePrice = (a, b) => b.basePrice - a.basePrice;
+
 const updatePoint = (points, update) => points.map((point) => point.id === update.id ? update : point);
 
 export {
@@ -95,5 +103,7 @@ export {
   isPointPresent,
   isPointPast,
   getFilterData,
-  updatePoint
+  updatePoint,
+  sortTypeTime,
+  sortTypePrice
 };
