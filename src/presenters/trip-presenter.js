@@ -58,11 +58,7 @@ export default class TripPresenter {
     this.#points = updatePoint(this.#points, updatedPoint);
     this.#sourceTripPoints = updatePoint(this.#points, updatedPoint);
     this.#pointPresenters.get(updatedPoint.id).
-      init({
-        point: updatedPoint,
-        pointDestinations: this.#destinationsModel.getById(updatedPoint.destination),
-        pointOffers: this.#offersModel.getByType(updatedPoint.type)
-      });
+      init(updatedPoint);
   };
 
   #handleModeChange = () => {
@@ -73,7 +69,6 @@ export default class TripPresenter {
   #sortPoints(sortType) {
     switch (sortType) {
       case SortType.TIME:
-
         this.#points.sort(sortTypeTime);
         break;
 
@@ -84,6 +79,9 @@ export default class TripPresenter {
       case SortType.DAY:
         this.#points = [...this.#sourceTripPoints];
         break;
+
+      default:
+        throw new Error(`Unknown Sort Type: '${sortType}'!`);
     }
     this.#currentSortType = sortType;
   }
@@ -121,21 +119,19 @@ export default class TripPresenter {
   #renderPoints() {
     render(this.#listView, this.#tripContainer);
     this.#points.forEach((point) => {
-      this.#renderPoint({
-        point,
-        pointDestinations: this.#destinationsModel.getById(point.destination),
-        pointOffers: this.#offersModel.getByType(point.type)
-      });
+      this.#renderPoint(point);
     });
   }
 
-  #renderPoint({point, pointDestinations, pointOffers}) {
+  #renderPoint(point) {
     const pointPresenter = new PointPresenter({
       listView: this.#listView,
       onDataChange: this.#handlePointChange,
-      onModeChange: this.#handleModeChange
+      onModeChange: this.#handleModeChange,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel
     });
-    pointPresenter.init({point, pointDestinations, pointOffers});
+    pointPresenter.init(point);
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 }

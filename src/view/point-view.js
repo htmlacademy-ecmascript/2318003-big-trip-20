@@ -14,7 +14,7 @@ const createOfferTemplate = ({title, price}) => (
   </li>`
 );
 
-const createContentTemplate = ({point, pointDestinations, pointOffers}) => {
+const createPointTemplate = ({point, pointDestinations, pointOffers}) => {
   const {basePrice, dateFrom, dateTo, isFavorite, type, offers} = point;
   const {name} = pointDestinations;
 
@@ -71,18 +71,18 @@ const createContentTemplate = ({point, pointDestinations, pointOffers}) => {
   );
 };
 
-export default class ContentView extends AbstractView {
+export default class PointView extends AbstractView {
   #point;
   #destination;
   #pointOffers;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({point, pointDestinations, pointOffers, onEditClick, onFavoriteClick}) {
+  constructor({point, destination, checkedOffers, onEditClick, onFavoriteClick}) {
     super();
     this.#point = point;
-    this.#destination = pointDestinations;
-    this.#pointOffers = pointOffers;
+    this.#destination = destination;
+    this.#pointOffers = checkedOffers;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -91,7 +91,7 @@ export default class ContentView extends AbstractView {
   }
 
   get template() {
-    return createContentTemplate({
+    return createPointTemplate({
       point: this.#point,
       pointDestinations: this.#destination,
       pointOffers: this.#pointOffers
