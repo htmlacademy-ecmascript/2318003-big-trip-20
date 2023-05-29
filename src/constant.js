@@ -1,8 +1,27 @@
 const WAYPOINT_TYPE = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
-const CITIES = ['Chamonix', 'Geneva', 'Amsterdam', 'Moscow', 'Saint-Petersburg'];
-
-const CITY_DESCRIPTION = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const CITIES = [
+  {
+    name: 'Chamonix',
+    description: 'Chamonix description'
+  },
+  {
+    name: 'Geneva',
+    description: 'Geneva description'
+  },
+  {
+    name: 'Amsterdam',
+    description: 'Amsterdam description'
+  },
+  {
+    name: 'Moscow',
+    description: 'Moscow description'
+  },
+  {
+    name: 'Saint-Petersburg',
+    description: 'Saint-Petersburg description'
+  }
+];
 
 const PRICE = {
   MIN: 100,
@@ -59,7 +78,6 @@ const SortType = {
 export {
   WAYPOINT_TYPE,
   CITIES,
-  CITY_DESCRIPTION,
   PRICE,
   DURATION,
   DESTINATION_COUNT,

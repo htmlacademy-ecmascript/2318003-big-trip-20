@@ -29,20 +29,18 @@ export default class PointPresenter {
 
   init(point) {
     this.#point = point;
-
-    //debugger;
-
-
-    const destination = this.#destinationsModel.getById(this.#point.destination);
-    const checkedOffers = this.#offersModel.getByType(this.#point.type);
+    const destinationById = this.#destinationsModel.getById(this.#point.destination);
+    const offersByType = this.#offersModel.getByType(this.#point.type);
+    const allDestinations = [...this.#destinationsModel.destinations];
+    const allOffers = [...this.#offersModel.offers];
 
     const prevPointComponent = this.#pointComponent;
     const prevEditPointComponent = this.#editPointComponent;
 
     this.#pointComponent = new PointView({
       point: this.#point,
-      destination: destination,
-      checkedOffers: checkedOffers,
+      destinationById: destinationById,
+      offersByType: offersByType,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
@@ -51,8 +49,8 @@ export default class PointPresenter {
       point: this.#point,
       onFormSubmit: this.#handleFormSubmit,
       onCloseEditClick: this.#handleCloseCLick,
-      destinationsModel: this.#destinationsModel,
-      offersModel: this.#offersModel
+      allDestinations: allDestinations,
+      allOffers: allOffers
     });
 
     render(this.#pointComponent, this.#listView.element);

@@ -18,6 +18,7 @@ const createPointTemplate = ({point, pointDestinations, pointOffers}) => {
   const {basePrice, dateFrom, dateTo, isFavorite, type, offers} = point;
   const {name} = pointDestinations;
 
+
   const getOfferById = (id) => {
     for (let i = 0; i < pointOffers.length; i++) {
       if (pointOffers[i].id === id) {
@@ -73,16 +74,16 @@ const createPointTemplate = ({point, pointDestinations, pointOffers}) => {
 
 export default class PointView extends AbstractView {
   #point;
-  #destination;
-  #pointOffers;
+  #destinationById;
+  #offersByType;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({point, destination, checkedOffers, onEditClick, onFavoriteClick}) {
+  constructor({point, destinationById, offersByType, onEditClick, onFavoriteClick}) {
     super();
     this.#point = point;
-    this.#destination = destination;
-    this.#pointOffers = checkedOffers;
+    this.#destinationById = destinationById;
+    this.#offersByType = offersByType;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -93,8 +94,8 @@ export default class PointView extends AbstractView {
   get template() {
     return createPointTemplate({
       point: this.#point,
-      pointDestinations: this.#destination,
-      pointOffers: this.#pointOffers
+      pointDestinations: this.#destinationById,
+      pointOffers: this.#offersByType
     });
   }
 

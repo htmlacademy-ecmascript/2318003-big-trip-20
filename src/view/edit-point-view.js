@@ -2,12 +2,11 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {formatStringToDateTime, capitalize} from '../utils.js';
 import {WAYPOINT_TYPE, CITIES, POINT_EMPTY} from '../constant.js';
 
-const isOfferChecked = (offers, id) => offers.includes(id);
-
 const createOffersTemplate = ({offer, point}) => {
   const {id, title, price} = offer;
   const {offers} = point;
-  const isChecked = isOfferChecked(offers, id) ? 'checked' : '';
+  const isChecked = offers.includes(id) ? 'checked' : '';
+
   return (`<div class="event__offer-selector">
     <input class="event__offer-checkbox  visually-hidden" id="${id}" type="checkbox" name="event-offer-${title}" ${isChecked}>
     <label class="event__offer-label" for="${id}">
@@ -17,7 +16,6 @@ const createOffersTemplate = ({offer, point}) => {
     </label>
   </div>`);
 };
-
 
 const createEventTypeTemplate = (type) => {
   const value = capitalize(type);
@@ -34,11 +32,11 @@ const createItemOfCitiesTemplate = (city) => `<option value=${city}></option>`;
 
 const createEditPointTemplate = ({point, allDestinations, allOffers}) => {
   const {id, basePrice, dateFrom, dateTo, type, destination} = point;
-  const poindDestination = allDestinations.getById(destination);
-  const {description, name} = poindDestination;
+  const pointDestination = allDestinations.find((wayPoint) => wayPoint.id === destination);
+  const {description, name} = pointDestination;
   const eventTypeMarkup = WAYPOINT_TYPE.map(createEventTypeTemplate).join('');
-  const citiesMarkup = CITIES.map(createItemOfCitiesTemplate).join('');
-  const pointOffers = allOffers.getByType(type);
+  const citiesMarkup = CITIES.map((city) => createItemOfCitiesTemplate(city.name)).join('');
+  const pointOffers = allOffers.find((offer) => offer.type === type).offers;
   const offersListMarkup = pointOffers.map((offer) => createOffersTemplate({offer, point})).join('');
 
   const createOffersMarkup = (offer) => {
@@ -53,6 +51,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers}) => {
         </section>`
       );
     }
+
     return '';
   };
 
@@ -123,29 +122,27 @@ const createEditPointTemplate = ({point, allDestinations, allOffers}) => {
   );
 };
 export default class EditPointView extends AbstractStatefulView{
-  #destinationsModel = null;
-  #offersModel = null;
+  #allDestinations = null;
+  #allOffers = null;
   #handleFormSubmit = null;
   #handleCloseEditClick = null;
 
-  constructor({point = POINT_EMPTY, destinationsModel, offersModel, onFormSubmit, onCloseEditClick}) {
+  constructor({point = POINT_EMPTY, allDestinations, allOffers, onFormSubmit, onCloseEditClick}) {
     super();
-    //this.#point = point;
     this._setState(EditPointView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCloseEditClick = onCloseEditClick;
-    this.#destinationsModel = destinationsModel;
-    this.#offersModel = offersModel;
+    this.#allDestinations = allDestinations;
+    this.#allOffers = allOffers;
 
     this._restoreHandlers();
   }
 
   get template() {
     return createEditPointTemplate({
-      //point: this.#point,
       point: this._state,
-      allDestinations: this.#destinationsModel,
-      allOffers: this.#offersModel
+      allDestinations: this.#allDestinations,
+      allOffers: this.#allOffers
     });
   }
 
@@ -161,7 +158,6 @@ export default class EditPointView extends AbstractStatefulView{
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    //this.#handleFormSubmit(this.#point);
     this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
   };
 
@@ -169,15 +165,6 @@ export default class EditPointView extends AbstractStatefulView{
     evt.preventDefault();
     this.#handleCloseEditClick();
   };
-
-  static parsePointToState(point) {
-    return {...point};
-  }
-
-  static parseStateToPoint(state) {
-    const point = {...state};
-    return point;
-  }
 
   #chooseTripPointTypeHandler = (evt) => {
     evt.preventDefault();
@@ -194,9 +181,10 @@ export default class EditPointView extends AbstractStatefulView{
   };
 
   #destinationChangeHandler = (evt) => {
-    if (this.#destinationsModel.getByName(evt.target.value)) {
+    const selectedDestination = this.#allDestinations.find((destination) => destination.name === evt.target.value);
+    if (selectedDestination) {
       this.updateElement({
-        destination: this.#destinationsModel.getByName(evt.target.value).id,
+        destination: selectedDestination.id,
       });
     }
   };
@@ -210,15 +198,18 @@ export default class EditPointView extends AbstractStatefulView{
 
   #chooseOfferHandler = (evt) => {
     evt.preventDefault();
-    const selectedOffer = evt.target.id;
-    if (evt.target.checked) {
-      this.updateElement({
-        offers: [...this._state.offers, selectedOffer],
-      });
-    } else {
-      this.updateElement({
-        offers: [...this._state.offers.filter((offer) => offer !== selectedOffer)],
-      });
-    }
+    const newOffer = evt.target.checked ? [...this._state.offers, evt.target.id] : this._state.offers.filter((offer) => offer !== evt.target.id);
+    this.updateElement({
+      offers: newOffer
+    });
   };
+
+  static parsePointToState(point) {
+    return {...point};
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+    return point;
+  }
 }
