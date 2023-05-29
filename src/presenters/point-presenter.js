@@ -10,8 +10,8 @@ const Mode = {
 export default class PointPresenter {
   #listView = null;
   #point = null;
-  #pointDestinations = null;
-  #pointOffers = null;
+  #destinationsModel = null;
+  #offersModel = null;
 
   #pointComponent = null;
   #editPointComponent = null;
@@ -19,34 +19,38 @@ export default class PointPresenter {
   #handleModeChange = null;
   #mode = Mode.DEFAULT;
 
-  constructor({listView, onDataChange, onModeChange}) {
+  constructor({listView, onDataChange, onModeChange, destinationsModel, offersModel}) {
     this.#listView = listView;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
   }
 
-  init({point, pointDestinations, pointOffers}) {
+  init(point) {
     this.#point = point;
-    this.#pointDestinations = pointDestinations;
-    this.#pointOffers = pointOffers;
+    const destinationById = this.#destinationsModel.getById(this.#point.destination);
+    const offersByType = this.#offersModel.getByType(this.#point.type);
+    const allDestinations = [...this.#destinationsModel.destinations];
+    const allOffers = [...this.#offersModel.offers];
 
     const prevPointComponent = this.#pointComponent;
     const prevEditPointComponent = this.#editPointComponent;
 
     this.#pointComponent = new PointView({
       point: this.#point,
-      pointDestinations: this.#pointDestinations,
-      pointOffers: this.#pointOffers,
+      destinationById: destinationById,
+      offersByType: offersByType,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
 
     this.#editPointComponent = new EditPointView({
       point: this.#point,
-      pointDestinations: this.#pointDestinations,
-      pointOffers: this.#pointOffers,
       onFormSubmit: this.#handleFormSubmit,
-      onCloseEditClick: this.#handleCloseCLick
+      onCloseEditClick: this.#handleCloseCLick,
+      allDestinations: allDestinations,
+      allOffers: allOffers
     });
 
     render(this.#pointComponent, this.#listView.element);

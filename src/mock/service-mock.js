@@ -1,6 +1,6 @@
 import {
   WAYPOINT_TYPE,
-  DESTINATION_COUNT,
+  CITIES,
   OFFER_COUNT,
   POINT_COUNT
 } from '../constant.js';
@@ -34,7 +34,7 @@ export default class MockService {
   }
 
   generateDestinations() {
-    return Array.from({length: DESTINATION_COUNT}, generateDestination);
+    return CITIES.map(generateDestination);
   }
 
   generateOffers() {
