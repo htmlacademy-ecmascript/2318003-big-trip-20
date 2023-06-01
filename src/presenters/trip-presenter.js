@@ -94,6 +94,7 @@ export default class TripPresenter {
     this.#renderSort();
   };
 
+
   #renderSort() {
     this.#sortView = new SortView({
       onSortTypeChange: this.#handleSortTypeChange,
