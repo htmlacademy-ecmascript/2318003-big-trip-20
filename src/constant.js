@@ -74,6 +74,7 @@ const SortType = {
   OFFERS: 'offers'
 };
 
+const HEADER_POINT_COUNT = 3;
 
 export {
   WAYPOINT_TYPE,
@@ -86,5 +87,6 @@ export {
   POINT_EMPTY,
   FilterType,
   FilterEmptyMessage,
-  SortType
+  SortType,
+  HEADER_POINT_COUNT
 };

@@ -1,51 +1,38 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {formatStringToShortDate} from '../utils.js';
+import {HEADER_POINT_COUNT} from '../constant.js';
 
-const findUniqueCities = ({points, allDestinations}) => {
-  const uniqueCityIds = Array.from(new Set(points.map((point) => point.destination)));
-  const uniqueCities = allDestinations
-    .map((destination) => ((uniqueCityIds.includes(destination.id)) ? destination.name : ''))
-    .filter((city) => (city !== ''));
+const findCities = ({points, allDestinations}) => {
+  const cityIds = points.map((point) => point.destination);
+  const getNameById = (id) => allDestinations.find((destination) => destination.id === id).name;
 
-  return uniqueCities;
+  return (cityIds.map(getNameById));
 };
 
 const createWayPointMarkup = (uniqueCities) => {
-  let wayPointMarkup = '';
-  if (uniqueCities.length === 1) {
-    wayPointMarkup = `${uniqueCities[0]}`;
+  if (uniqueCities.length < HEADER_POINT_COUNT) {
+    return (`${uniqueCities.join(' &mdash; ')}`);
   }
 
-  if (uniqueCities.length === 2) {
-    wayPointMarkup = `${uniqueCities[0]} &mdash; ${uniqueCities[1]}`;
-  }
-
-  if (uniqueCities.length === 3) {
-    wayPointMarkup = `${uniqueCities[0]} &mdash; ${uniqueCities[1]} &mdash; ${uniqueCities[uniqueCities.length - 1]}`;
+  if (uniqueCities.length === HEADER_POINT_COUNT) {
+    return (`${uniqueCities[0]} &mdash; ${uniqueCities[1]} &mdash; ${uniqueCities.at(-1)}`);
   }
 
   if (uniqueCities.length > 3) {
-    wayPointMarkup = `${uniqueCities[0]} &mdash; ... &mdash; ${uniqueCities[uniqueCities.length - 1]}`;
+    return (`${uniqueCities[0]} &mdash; ... &mdash; ${uniqueCities.at(-1)}`);
   }
-
-  return wayPointMarkup;
 };
 
 const createStartDateMarkup = (points) => formatStringToShortDate(points[0].dateFrom);
 
-const createFinishDateMarkup = (points) => formatStringToShortDate(points[points.length - 1].dateFrom);
+const createFinishDateMarkup = (points) => formatStringToShortDate(points.at(-1).dateFrom);
 
-const calculateSummaryPrice = (points) => {
-  const allPrices = points.map((point) => point.basePrice);
-  const count = (arr) => arr.reduce((acc, num) => acc + num, 0);
-  return count(allPrices);
-};
+const calculateSummaryPrice = (points) => points.reduce((acc, point) => acc + point.basePrice, 0);
 
 const createHeaderTemplate = (points, allDestinations) => {
   const startDay = createStartDateMarkup(points);
   const finishDay = createFinishDateMarkup(points);
-  const summaryPrice = calculateSummaryPrice(points);
-  const uniqueCities = findUniqueCities({points, allDestinations});
+  const uniqueCities = findCities({points, allDestinations});
 
   return (
     `<section class="trip-main__trip-info  trip-info">
@@ -54,7 +41,7 @@ const createHeaderTemplate = (points, allDestinations) => {
         <p class="trip-info__dates">${startDay}&nbsp;&mdash;&nbsp;${finishDay}</p>
       </div>
       <p class="trip-info__cost">
-        Total: &euro;&nbsp;<span class="trip-info__cost-value">${summaryPrice}</span>
+        Total: &euro;&nbsp;<span class="trip-info__cost-value">${calculateSummaryPrice(points)}</span>
       </p>
     </section>`);
 };
