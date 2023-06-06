@@ -89,6 +89,18 @@ const sortTypePrice = (a, b) => b.basePrice - a.basePrice;
 
 const updatePoint = (points, update) => points.map((point) => point.id === update.id ? update : point);
 
+const filter = (points) => Object.entries(getFilterData(points)).map(
+  ([filterType, filterPoints]) => ({
+    type: filterType,
+    count: filterPoints.length,
+  }),
+);
+
+const isPatchUpdate = (point, update) => (
+  dayjs(point.dateFrom).isSame(dayjs(update.dateFrom)) &&
+  dayjs(point.dateTo).isSame(dayjs(update.dateTo))
+);
+
 export {
   getRandomArrayElement,
   getRandomInteger,
@@ -105,5 +117,7 @@ export {
   getFilterData,
   updatePoint,
   sortTypeTime,
-  sortTypePrice
+  sortTypePrice,
+  filter,
+  isPatchUpdate
 };

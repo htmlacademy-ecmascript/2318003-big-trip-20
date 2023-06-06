@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 const WAYPOINT_TYPE = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
 const CITIES = [
@@ -44,8 +46,8 @@ const DEFAULT_TYPE = 'flight';
 
 const POINT_EMPTY = {
   basePrice: 0,
-  dateFrom: null,
-  dateTo: null,
+  dateFrom: dayjs().toDate(),
+  dateTo: dayjs().add(1, 'day').toDate(),
   destination: null,
   isFavorite: false,
   offers: [],
@@ -59,13 +61,6 @@ const FilterType = {
   PAST: 'past'
 };
 
-const FilterEmptyMessage = {
-  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
-  [FilterType.FUTURE]: 'There are no future events now',
-  [FilterType.PRESENT]: 'There are no present events now',
-  [FilterType.PAST]: 'There are no past events now'
-};
-
 const SortType = {
   DAY: 'day',
   EVENT: 'event',
@@ -75,6 +70,18 @@ const SortType = {
 };
 
 const HEADER_POINT_COUNT = 3;
+
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_TASK',
+  ADD_POINT: 'ADD_TASK',
+  DELETE_POINT: 'DELETE_TASK',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
 
 export {
   WAYPOINT_TYPE,
@@ -86,7 +93,8 @@ export {
   POINT_COUNT,
   POINT_EMPTY,
   FilterType,
-  FilterEmptyMessage,
   SortType,
-  HEADER_POINT_COUNT
+  HEADER_POINT_COUNT,
+  UserAction,
+  UpdateType
 };

@@ -5,6 +5,8 @@ import {WAYPOINT_TYPE, CITIES, POINT_EMPTY} from '../constant.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
+import he from 'he';
+
 const createOffersTemplate = ({offer, point}) => {
   const {id, title, price} = offer;
   const {offers} = point;
@@ -33,14 +35,49 @@ const createEventTypeTemplate = (type) => {
 
 const createItemOfCitiesTemplate = (city) => `<option value=${city}></option>`;
 
-const createEditPointTemplate = ({point, allDestinations, allOffers}) => {
+const createItemOfPhotosTemplate = ({picture}) => {
+  const {src, description} = picture;
+
+  return (`<img class="event__photo" src=${src} alt=${description}>`);
+};
+
+const createPhotosMarkup = ({pointDestination}) => {
+  const {pictures} = pointDestination;
+  const photosMarkup = pictures.map((picture) => createItemOfPhotosTemplate({picture})).join('');
+
+  return (
+    `<div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${photosMarkup}
+      </div>
+    </div>`
+  );
+};
+
+const createRollupTemplate = () => (
+  `<button class="event__rollup-btn" type="button">
+    <span class="visually-hidden">Open event</span>
+  </button>`
+);
+
+const createEditPointTemplate = ({point, allDestinations, allOffers, isNew}) => {
   const {id, basePrice, dateFrom, dateTo, type, destination} = point;
-  const pointDestination = allDestinations.find((wayPoint) => wayPoint.id === destination);
-  const {description, name} = pointDestination;
+  let pointDestination = '';
+  if (destination) {
+    pointDestination = allDestinations.find((wayPoint) => wayPoint.id === destination);
+  }
   const eventTypeMarkup = WAYPOINT_TYPE.map(createEventTypeTemplate).join('');
   const citiesMarkup = CITIES.map((city) => createItemOfCitiesTemplate(city.name)).join('');
   const pointOffers = allOffers.find((offer) => offer.type === type).offers;
   const offersListMarkup = pointOffers.map((offer) => createOffersTemplate({offer, point})).join('');
+
+  const destinationMarkup = (
+    `<section class="event__section  event__section--destination">
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${pointDestination.description}</p>
+      ${(isNew && destination) ? createPhotosMarkup({pointDestination}) : ''}
+    </section>`
+  );
 
   const createOffersMarkup = (offer) => {
     if (offer.length) {
@@ -57,7 +94,6 @@ const createEditPointTemplate = ({point, allDestinations, allOffers}) => {
 
     return '';
   };
-
 
   return (`<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -83,7 +119,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers}) => {
           <label class="event__label  event__type-output" for="event-destination-1">
             ${capitalize(type)}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(`${(destination) ? pointDestination.name : ''}`)}" list="destination-list-1">
           <datalist id="destination-list-1">
             ${citiesMarkup}
           </datalist>
@@ -102,23 +138,18 @@ const createEditPointTemplate = ({point, allDestinations, allOffers}) => {
             <span class="visually-hidden">${basePrice}</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${basePrice}>
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${he.encode(`${basePrice}`)}>
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+        <button class="event__reset-btn" type="reset">${(isNew) ? 'cancel' : 'delete'}</button>
+        ${(!isNew) ? createRollupTemplate() : ''}
       </header>
       <section class="event__details">
 
         ${createOffersMarkup(pointOffers)}
 
-        <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${description}</p>
-        </section>
+        ${(destination) ? destinationMarkup : ''}
       </section>
     </form>
   </li>`
@@ -131,14 +162,20 @@ export default class EditPointView extends AbstractStatefulView{
   #handleCloseEditClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #handleDeleteClick = null;
+  #isNew = null;
+  #handleFormCancel = null;
 
-  constructor({point = POINT_EMPTY, allDestinations, allOffers, onFormSubmit, onCloseEditClick}) {
+  constructor({point = POINT_EMPTY, allDestinations, allOffers, onFormSubmit, onCloseEditClick = null, onDeleteClick, onCancelClick, isNew = false}) {
     super();
     this._setState(EditPointView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCloseEditClick = onCloseEditClick;
     this.#allDestinations = allDestinations;
     this.#allOffers = allOffers;
+    this.#handleDeleteClick = onDeleteClick;
+    this.#handleFormCancel = onCancelClick;
+    this.#isNew = isNew;
 
     this._restoreHandlers();
   }
@@ -147,7 +184,8 @@ export default class EditPointView extends AbstractStatefulView{
     return createEditPointTemplate({
       point: this._state,
       allDestinations: this.#allDestinations,
-      allOffers: this.#allOffers
+      allOffers: this.#allOffers,
+      isNew: this.#isNew
     });
   }
 
@@ -166,8 +204,14 @@ export default class EditPointView extends AbstractStatefulView{
 
   _restoreHandlers() {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditClickHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#closeEditClickHandler);
+    if (this.#isNew) {
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelClickHandler);
+    } else {
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+    }
+    if (!this.#isNew) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditClickHandler);
+    }
     this.element.querySelector('.event__type-btn').addEventListener('click', this.#chooseTripPointTypeHandler);
     this.element.querySelector('.event__available-offers').addEventListener('change', this.#chooseOfferHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
@@ -263,6 +307,16 @@ export default class EditPointView extends AbstractStatefulView{
       },
     );
   }
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditPointView.parseStateToPoint(this._state));
+  };
+
+  #formCancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormCancel();
+  };
 
   static parsePointToState(point) {
     return {...point};
