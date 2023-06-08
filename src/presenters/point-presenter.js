@@ -119,9 +119,10 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (update) => {
+    const updateType = isPatchUpdate(this.#point, update) ? UpdateType.PATCH : UpdateType.MINOR;
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      isPatchUpdate(this.#point, update) ? UpdateType.PATCH : UpdateType.MINOR,
+      updateType,
       update,
     );
     this.#replaceEditFormToPoint();

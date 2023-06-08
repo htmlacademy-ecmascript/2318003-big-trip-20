@@ -1,6 +1,6 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilterView from '../view/filter-view.js';
-import {filter} from '../utils.js';
+import {filterPoints} from '../utils.js';
 import {UpdateType} from '../constant.js';
 
 export default class FilterPresenter {
@@ -19,14 +19,14 @@ export default class FilterPresenter {
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
-  get filters() {
+  get getFilterData() {
     const points = this.#pointsModel.points;
 
-    return filter(points);
+    return filterPoints(points);
   }
 
   init() {
-    const filters = this.filters;
+    const filters = this.getFilterData;
     const prevFilterComponent = this.#filterComponent;
 
     this.#filterComponent = new FilterView({

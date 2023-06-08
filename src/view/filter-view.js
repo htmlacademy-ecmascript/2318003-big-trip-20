@@ -16,7 +16,7 @@ const createFilterItemTemplate = (filter, currentFilterType) => {
         value="${type}"
         ${isChecked}
       >
-      <label class="trip-filters__filter-label" for="filter-${type}">${capitalize(type)}</label>
+      <label class="trip-filters__filter-label" for="filter-${type}">${capitalize(filter.type)}</label>
     </div>`
   );
 };
@@ -33,7 +33,6 @@ const createFiltersTemplate = (filterItems, currentFilterType) => {
     </form>`
   );
 };
-
 
 export default class FiltersView extends AbstractView{
   #filters = null;

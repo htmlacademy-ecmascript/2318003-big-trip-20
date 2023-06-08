@@ -89,10 +89,10 @@ const sortTypePrice = (a, b) => b.basePrice - a.basePrice;
 
 const updatePoint = (points, update) => points.map((point) => point.id === update.id ? update : point);
 
-const filter = (points) => Object.entries(getFilterData(points)).map(
-  ([filterType, filterPoints]) => ({
+const filterPoints = (points) => Object.entries(getFilterData(points)).map(
+  ([filterType, filteredPoints]) => ({
     type: filterType,
-    count: filterPoints.length,
+    count: filteredPoints.length,
   }),
 );
 
@@ -118,6 +118,6 @@ export {
   updatePoint,
   sortTypeTime,
   sortTypePrice,
-  filter,
+  filterPoints,
   isPatchUpdate
 };

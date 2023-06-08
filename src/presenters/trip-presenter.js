@@ -73,13 +73,16 @@ export default class TripPresenter {
     const filteredPoints = getFilterData(points)[this.#filterType];
 
     switch (this.#currentSortType) {
+      case SortType.DAY:
+        return filteredPoints;
       case SortType.TIME:
         return filteredPoints.sort(sortTypeTime);
       case SortType.PRICE:
         return filteredPoints.sort(sortTypePrice);
+      default:
+        throw new Error(`Unknown Sort Type: '${this.#currentSortType}'!`);
     }
 
-    return filteredPoints;
   }
 
   init() {
@@ -113,6 +116,8 @@ export default class TripPresenter {
       case UserAction.DELETE_POINT:
         this.#pointsModel.deletePoint(updateType, update);
         break;
+      default:
+        throw new Error(`Unknown User Action: '${UserAction}'!`);
     }
   };
 
@@ -129,6 +134,9 @@ export default class TripPresenter {
         this.#clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
+      default:
+        throw new Error(`Unknown Update Type: '${updateType}'!`);
+
     }
   };
 
@@ -139,7 +147,7 @@ export default class TripPresenter {
 
   #handleSortTypeChange = (sortType) => {
     this.#currentSortType = sortType;
-    this.#clearBoard({resetRenderedTaskCount: true});
+    this.#clearBoard({resetRenderedPointCount: true});
     this.#renderPoints();
     this.#removeSort();
     this.#renderSort();
@@ -186,7 +194,7 @@ export default class TripPresenter {
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
-  #clearBoard({resetSortType = false} = {}) {
+  #clearBoard({resetRenderedPointCount = false} = {}) {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
     this.#addNewPointPresenter.destroy();
@@ -197,16 +205,15 @@ export default class TripPresenter {
       remove(this.#emptyView);
     }
 
-    if (resetSortType) {
+    if (resetRenderedPointCount) {
       this.#currentSortType = SortType.DAY;
     }
   }
 
   #renderBoard() {
     const points = this.points;
-    const pointsCount = points.length;
 
-    if (pointsCount === 0) {
+    if (points.length === 0) {
       this.#renderEmpty();
       return;
     }

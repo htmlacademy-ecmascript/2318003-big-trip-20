@@ -34,7 +34,7 @@ export default class AddNewPointPresenter {
       allOffers: allOffers,
       onDeleteClick: this.#handleDeleteClick,
       onCancelClick: this.#handleCancelClick,
-      isNew: true
+      isCreatingMode: true
     });
 
     render(this.#pointEditComponent, this.#listView, RenderPosition.AFTERBEGIN);

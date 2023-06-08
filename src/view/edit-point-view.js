@@ -60,7 +60,7 @@ const createRollupTemplate = () => (
   </button>`
 );
 
-const createEditPointTemplate = ({point, allDestinations, allOffers, isNew}) => {
+const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingMode}) => {
   const {id, basePrice, dateFrom, dateTo, type, destination} = point;
   let pointDestination = '';
   if (destination) {
@@ -75,7 +75,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isNew}) => 
     `<section class="event__section  event__section--destination">
     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${pointDestination.description}</p>
-      ${(isNew && destination) ? createPhotosMarkup({pointDestination}) : ''}
+      ${(isCreatingMode && destination) ? createPhotosMarkup({pointDestination}) : ''}
     </section>`
   );
 
@@ -142,8 +142,8 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isNew}) => 
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${(isNew) ? 'cancel' : 'delete'}</button>
-        ${(!isNew) ? createRollupTemplate() : ''}
+        <button class="event__reset-btn" type="reset">${(isCreatingMode) ? 'cancel' : 'delete'}</button>
+        ${(!isCreatingMode) ? createRollupTemplate() : ''}
       </header>
       <section class="event__details">
 
@@ -163,10 +163,10 @@ export default class EditPointView extends AbstractStatefulView{
   #datepickerFrom = null;
   #datepickerTo = null;
   #handleDeleteClick = null;
-  #isNew = null;
+  #isCreatingMode = null;
   #handleFormCancel = null;
 
-  constructor({point = POINT_EMPTY, allDestinations, allOffers, onFormSubmit, onCloseEditClick = null, onDeleteClick, onCancelClick, isNew = false}) {
+  constructor({point = POINT_EMPTY, allDestinations, allOffers, onFormSubmit, onCloseEditClick = null, onDeleteClick, onCancelClick, isCreatingMode = false}) {
     super();
     this._setState(EditPointView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
@@ -175,7 +175,7 @@ export default class EditPointView extends AbstractStatefulView{
     this.#allOffers = allOffers;
     this.#handleDeleteClick = onDeleteClick;
     this.#handleFormCancel = onCancelClick;
-    this.#isNew = isNew;
+    this.#isCreatingMode = isCreatingMode;
 
     this._restoreHandlers();
   }
@@ -185,7 +185,7 @@ export default class EditPointView extends AbstractStatefulView{
       point: this._state,
       allDestinations: this.#allDestinations,
       allOffers: this.#allOffers,
-      isNew: this.#isNew
+      isCreatingMode: this.#isCreatingMode
     });
   }
 
@@ -204,12 +204,12 @@ export default class EditPointView extends AbstractStatefulView{
 
   _restoreHandlers() {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    if (this.#isNew) {
+    if (this.#isCreatingMode) {
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelClickHandler);
     } else {
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
     }
-    if (!this.#isNew) {
+    if (!this.#isCreatingMode) {
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditClickHandler);
     }
     this.element.querySelector('.event__type-btn').addEventListener('click', this.#chooseTripPointTypeHandler);
