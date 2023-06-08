@@ -1,6 +1,8 @@
 import {render, replace, remove} from '../framework/render.js';
 import PointView from '../view/point-view.js';
 import EditPointView from '../view/edit-point-view.js';
+import {UserAction, UpdateType} from '../constant.js';
+import {isPatchUpdate} from '../utils.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -50,7 +52,8 @@ export default class PointPresenter {
       onFormSubmit: this.#handleFormSubmit,
       onCloseEditClick: this.#handleCloseCLick,
       allDestinations: allDestinations,
-      allOffers: allOffers
+      allOffers: allOffers,
+      onDeleteClick: this.#handleDeleteClick
     });
 
     render(this.#pointComponent, this.#listView.element);
@@ -86,7 +89,7 @@ export default class PointPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#closeForm();
+      this.#replaceEditFormToPoint();
     }
   };
 
@@ -94,21 +97,17 @@ export default class PointPresenter {
     replace(this.#editPointComponent, this.#pointComponent);
     this.#handleModeChange();
     this.#mode = Mode.EDITING;
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   }
 
   #replaceEditFormToPoint() {
     replace(this.#pointComponent, this.#editPointComponent);
     this.#mode = Mode.DEFAULT;
-  }
-
-  #closeForm() {
-    this.#replaceEditFormToPoint();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
   #handleEditClick = () => {
     this.#replacePointToEditForm();
-    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleFavoriteClick = () => {
@@ -116,11 +115,24 @@ export default class PointPresenter {
   };
 
   #handleCloseCLick = () => {
-    this.#closeForm();
+    this.#replaceEditFormToPoint();
   };
 
-  #handleFormSubmit = (point) => {
-    this.#handleDataChange(point);
-    this.#closeForm();
+  #handleFormSubmit = (update) => {
+    const updateType = isPatchUpdate(this.#point, update) ? UpdateType.PATCH : UpdateType.MINOR;
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      updateType,
+      update,
+    );
+    this.#replaceEditFormToPoint();
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
   };
 }
