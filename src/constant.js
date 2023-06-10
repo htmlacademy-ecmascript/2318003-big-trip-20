@@ -40,8 +40,6 @@ const DESTINATION_COUNT = 5;
 
 const OFFER_COUNT = 6;
 
-const POINT_COUNT = 7;
-
 const DEFAULT_TYPE = 'flight';
 
 const POINT_EMPTY = {
@@ -81,6 +79,7 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 export {
@@ -90,7 +89,6 @@ export {
   DURATION,
   DESTINATION_COUNT,
   OFFER_COUNT,
-  POINT_COUNT,
   POINT_EMPTY,
   FilterType,
   SortType,

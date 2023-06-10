@@ -1,25 +1,30 @@
 import Observable from '../framework/observable.js';
+import {UpdateType} from '../constant.js';
 
 export default class PointsModel extends Observable {
-  #service;
-  #points;
+  #points = [];
+  #pointsApiService = null;
 
-  constructor(service) {
+  constructor({pointsApiService}) {
     super();
-    this.#service = service;
-    this.#points = this.#service.getPoints();
+    this.#pointsApiService = pointsApiService;
   }
 
   get points() {
     return this.#points;
   }
 
-  updatePoint(updateType, update) {
+  async updatePoint(updateType, update) {
     this.#checkPointExist(update, 'update');
+    try {
+      const response = await this.#pointsApiService.updatePoint(update);
+      const updatedPoint = this.#adaptToClient(response);
+      this.#points.map((point) => (point.id === updatedPoint.id) ? updatedPoint : point);
 
-    this.#points.map((point) => (point.id === update.id) ? update : point);
-
-    this._notify(updateType, update);
+      this._notify(updateType, updatedPoint);
+    } catch(err) {
+      throw new Error('Can\'t update task');
+    }
   }
 
   addPoint(updateType, update) {
@@ -45,5 +50,31 @@ export default class PointsModel extends Observable {
     if (index === -1) {
       throw new Error(`Can't ${type} unexisting point`);
     }
+  }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'] ? new Date(point['date_from']) : point['date_from'],
+      dateTo: point['date_to'] ? new Date(point['date_to']) : point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch(err) {
+      this.#points = [];
+    }
+    this._notify(UpdateType.INIT);
   }
 }

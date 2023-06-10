@@ -1,5 +1,5 @@
 import {render, remove, RenderPosition} from '../framework/render.js';
-import {sortTypeTime, sortTypePrice, getFilterData} from '../utils.js';
+import {sortByDate, sortTypeTime, sortTypePrice, getFilterData} from '../utils.js';
 import {SortType, UpdateType, UserAction, FilterType} from '../constant.js';
 
 import dayjs from 'dayjs';
@@ -26,6 +26,7 @@ export default class TripPresenter {
 
   #sortView = null;
   #emptyView = null;
+  #isLoading = true;
 
   #pointPresenters = new Map();
   #addNewPointPresenter = null;
@@ -74,7 +75,7 @@ export default class TripPresenter {
 
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return filteredPoints;
+        return [...sortByDate(filteredPoints)];
       case SortType.TIME:
         return filteredPoints.sort(sortTypeTime);
       case SortType.PRICE:
@@ -88,15 +89,15 @@ export default class TripPresenter {
   init() {
     this.#renderSort();
 
-    if (!this.points.length) {
+    /* if (this.points.length) {
       remove(this.#sortView);
       this.#renderEmpty();
 
       return;
-    }
+    } */
 
-    this.#renderPoints();
     render(this.#newPointButtonComponent, this.#tripMain, RenderPosition.BEFOREEND);
+    this.#renderPoints();
   }
 
   createPoint() {
@@ -134,9 +135,13 @@ export default class TripPresenter {
         this.#clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        this.#clearBoard({resetSortType: true});
+        this.#renderBoard();
+        break;
       default:
         throw new Error(`Unknown Update Type: '${updateType}'!`);
-
     }
   };
 
@@ -146,11 +151,16 @@ export default class TripPresenter {
   };
 
   #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
     this.#currentSortType = sortType;
-    this.#clearBoard({resetRenderedPointCount: true});
-    this.#renderPoints();
+    this.#clearBoard();
+    /* this.#renderPoints();
     this.#removeSort();
-    this.#renderSort();
+    this.#renderSort(); */
+    this.#renderBoard();
   };
 
 
@@ -163,13 +173,14 @@ export default class TripPresenter {
     render(this.#sortView, this.#listView.element, RenderPosition.AFTERBEGIN);
   }
 
-  #removeSort() {
+  /*#removeSort() {
     remove(this.#sortView);
-  }
+  } */
 
   #renderEmpty() {
     this.#emptyView = new EmptyView({
-      filterType: this.#filterType
+      filterType: this.#filterType,
+      isLoading: this.#isLoading,
     });
 
     render(this.#emptyView, this.#tripContainer);
@@ -213,7 +224,7 @@ export default class TripPresenter {
   #renderBoard() {
     const points = this.points;
 
-    if (points.length === 0) {
+    if (points.length === 0 || this.#isLoading) {
       this.#renderEmpty();
       return;
     }

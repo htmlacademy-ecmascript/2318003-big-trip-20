@@ -32,6 +32,8 @@ const getDate = ({next}) => {
   return (date.toDate());
 };
 
+const humanizeDate = (date, dateFormat) => date ? dayjs(date).format(dateFormat) : '';
+
 const formatStringToDateTime = (date) => dayjs(date).format('DD/MM/YY HH:mm');
 const formatStringToShortDate = (date) => dayjs(date).format('MMM DD');
 const formatStringToTime = (date) => dayjs(date).format('HH:mm');
@@ -101,6 +103,10 @@ const isPatchUpdate = (point, update) => (
   dayjs(point.dateTo).isSame(dayjs(update.dateTo))
 );
 
+const getDateDiff = (dateOne, dateTwo) => dayjs(dateOne).unix() - dayjs(dateTwo).unix();
+
+const sortByDate = (points) => points.sort((a, b) => getDateDiff(a.dateFrom, b.dateFrom));
+
 export {
   getRandomArrayElement,
   getRandomInteger,
@@ -119,5 +125,7 @@ export {
   sortTypeTime,
   sortTypePrice,
   filterPoints,
-  isPatchUpdate
+  isPatchUpdate,
+  humanizeDate,
+  sortByDate
 };

@@ -6,34 +6,23 @@ import {
   calculateTimeDifference
 } from '../utils.js';
 
-const createOfferTemplate = ({title, price}) => (
-  `<li class="event__offer">
-    <span class="event__offer-title">${title}</span>
-    &plus;&euro;&nbsp;
-    <span class="event__offer-price">${price}</span>
-  </li>`
+const createOfferTemplate = (offersList) => (
+  offersList.map((offer) =>
+    `<li class="event__offer">
+       <span class="event__offer-title">${offer.title}</span>
+       &plus;&euro;&nbsp;
+       <span class="event__offer-price">${offer.price}</span>
+      </li>`).join('')
 );
 
 const createPointTemplate = ({point, pointDestinations, pointOffers}) => {
-  const {basePrice, dateFrom, dateTo, isFavorite, type, offers} = point;
-  const {name} = pointDestinations;
-
-
-  const getOfferById = (id) => {
-    for (let i = 0; i < pointOffers.length; i++) {
-      if (pointOffers[i].id === id) {
-        return pointOffers[i];
-      }
-    }
-  };
+  const {basePrice, dateFrom, dateTo, isFavorite, type} = point;
 
   const dateTimeFrom = formatStringToDateTime(dateFrom);
   const dateTimeTo = formatStringToDateTime(dateTo);
   const shortDateFrom = formatStringToShortDate(dateFrom);
   const timeFrom = formatStringToTime(dateFrom);
   const timeTo = formatStringToTime(dateTo);
-  const offersList = (offers.length) ? offers.map(getOfferById) : [];
-  const offersListMarkup = (offersList) ? offersList.map(createOfferTemplate).join('') : [];
 
   return (
     `<li class="trip-events__item">
@@ -42,7 +31,7 @@ const createPointTemplate = ({point, pointDestinations, pointOffers}) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${name}</h3>
+        <h3 class="event__title">${type} ${pointDestinations?.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime=${formatStringToDateTime(dateFrom)}>${timeFrom}</time>
@@ -56,7 +45,7 @@ const createPointTemplate = ({point, pointDestinations, pointOffers}) => {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${offersListMarkup}
+          ${pointOffers ? createOfferTemplate(pointOffers) : ''}
         </ul>
         <button class="event__favorite-btn event__favorite-btn${isFavorite ? ' event__favorite-btn--active' : ''}" type="button">
           <span class="visually-hidden">Add to favorite</span>
@@ -74,16 +63,16 @@ const createPointTemplate = ({point, pointDestinations, pointOffers}) => {
 
 export default class PointView extends AbstractView {
   #point;
-  #destinationById;
-  #offersByType;
+  #destinationById = [];
+  #offersById = [];
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({point, destinationById, offersByType, onEditClick, onFavoriteClick}) {
+  constructor({point, destinationById, offersById, onEditClick, onFavoriteClick}) {
     super();
     this.#point = point;
     this.#destinationById = destinationById;
-    this.#offersByType = offersByType;
+    this.#offersById = offersById;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -95,7 +84,7 @@ export default class PointView extends AbstractView {
     return createPointTemplate({
       point: this.#point,
       pointDestinations: this.#destinationById,
-      pointOffers: this.#offersByType
+      pointOffers: this.#offersById
     });
   }
 

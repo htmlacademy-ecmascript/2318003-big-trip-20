@@ -1,62 +1,54 @@
+import {humanizeDate, sortByDate} from '../utils.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {formatStringToShortDate} from '../utils.js';
-import {HEADER_POINT_COUNT} from '../constant.js';
 
-const findCities = ({points, allDestinations}) => {
-  const cityIds = points.map((point) => point.destination);
-  const getNameById = (id) => allDestinations.find((destination) => destination.id === id).name;
+import dayjs from 'dayjs';
 
-  return (cityIds.map(getNameById));
-};
-
-const createWayPointMarkup = (uniqueCities) => {
-  if (uniqueCities.length < HEADER_POINT_COUNT) {
-    return (`${uniqueCities.join(' &mdash; ')}`);
-  }
-
-  if (uniqueCities.length === HEADER_POINT_COUNT) {
-    return (`${uniqueCities[0]} &mdash; ${uniqueCities[1]} &mdash; ${uniqueCities.at(-1)}`);
-  }
-
-  if (uniqueCities.length > 3) {
-    return (`${uniqueCities[0]} &mdash; ... &mdash; ${uniqueCities.at(-1)}`);
-  }
-};
-
-const createStartDateMarkup = (points) => formatStringToShortDate(points[0].dateFrom);
-
-const createFinishDateMarkup = (points) => formatStringToShortDate(points.at(-1).dateFrom);
-
-const calculateSummaryPrice = (points) => points.reduce((acc, point) => acc + point.basePrice, 0);
-
-const createHeaderTemplate = (points, allDestinations) => {
-  const startDay = createStartDateMarkup(points);
-  const finishDay = createFinishDateMarkup(points);
-  const uniqueCities = findCities({points, allDestinations});
-
+function createTripInfoTemplate({points, intialDestination, finalDestination, shortPoints, intialDate, finalDate, totalPrice}) {
   return (
     `<section class="trip-main__trip-info  trip-info">
-      <div class="trip-info__main">
-        <h1 class="trip-info__title">${createWayPointMarkup(uniqueCities)}</h1>
-        <p class="trip-info__dates">${startDay}&nbsp;&mdash;&nbsp;${finishDay}</p>
-      </div>
-      <p class="trip-info__cost">
-        Total: &euro;&nbsp;<span class="trip-info__cost-value">${calculateSummaryPrice(points)}</span>
-      </p>
-    </section>`);
-};
+       <div class="trip-info__main">
+         <h1 class="trip-info__title">${points.length > 3 ? `${intialDestination ? intialDestination : ''} &mdash; . . . &mdash; ${finalDestination ? finalDestination : ''}` : shortPoints.join(' &mdash; ')}</h1>
 
-export default class HeaderView extends AbstractView{
-  #points = null;
-  #allDestinations = null;
+         <p class="trip-info__dates">${intialDate}&nbsp;&mdash;&nbsp;${finalDate}</p>
+       </div>
 
-  constructor({points, allDestinations}) {
+       <p class="trip-info__cost">
+         Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice ? totalPrice : ''}</span>
+       </p>
+     </section>`
+  );
+}
+
+export default class HeaderView extends AbstractView {
+  #destinationsModel = null;
+  #pointsModel = null;
+  #offersModel = null;
+
+  constructor({destinationsModel, pointsModel, offersModel}) {
     super();
-    this.#points = points;
-    this.#allDestinations = allDestinations;
+    this.#destinationsModel = destinationsModel;
+    this.#pointsModel = pointsModel;
+    this.#offersModel = offersModel;
   }
 
   get template() {
-    return createHeaderTemplate(this.#points, this.#allDestinations);
+    const points = this.#pointsModel.points;
+    const shortPoints = sortByDate(points).map((point) => this.#destinationsModel.getById(point.destination)?.name);
+
+    const intialDestination = this.#destinationsModel.getById(points[0]?.destination)?.name;
+    const finalDestination = this.#destinationsModel.getById(points.at(-1)?.destination)?.name;
+
+    const isSameMonth = dayjs(points[0]?.dateFrom).month() === dayjs(points.at(-1)?.dateTo).month();
+    const intialDate = humanizeDate(points[0]?.dateFrom, `${isSameMonth ? 'MMM D' : 'D MMM'}`);
+    const finalDate = humanizeDate(points.at(-1)?.dateTo, `${isSameMonth ? 'D' : 'D MMM'}`);
+
+    const totalPrice = points?.reduce((total, point) => {
+      const checkedOffers = this.#offersModel.getById(point.type, point.offers);
+      const checkedOffersPrice = checkedOffers?.reduce((sum, checkedOffer) => sum + checkedOffer.price, 0);
+      total += checkedOffersPrice + point.basePrice;
+      return total;
+    }, 0);
+
+    return createTripInfoTemplate({points, intialDestination, finalDestination, shortPoints, intialDate, finalDate, totalPrice});
   }
 }
