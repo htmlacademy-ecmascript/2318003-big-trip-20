@@ -1,30 +1,32 @@
-import {render} from './framework/render.js';
-import {RenderPosition} from './render.js';
-
-import HeaderView from './view/header-view.js';
-
 import TripPresenter from './presenters/trip-presenter.js';
 import FilterPresenter from './presenters/filter-presenter.js';
+import HeaderPresenter from './presenters/header-presenter.js';
 
-import MockService from './mock/service-mock.js';
 import DestinationsModel from './model/destination-model.js';
 import OffersModel from './model/offer-model.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
+
+import PointsApiService from './point-api-service.js';
+
+const AUTHORIZATION = 'Basic ry75Uim23Jop2103';
+const END_POINT = 'https://20.ecmascript.pages.academy/big-trip';
 
 const mainElement = document.querySelector('.page-main');
 const eventListElement = mainElement.querySelector('.trip-events');
 const tripControlsFilters = document.querySelector('.trip-controls__filters');
 const tripMain = document.querySelector('.trip-main');
 
-const mockService = new MockService();
-const destinationsModel = new DestinationsModel(mockService);
-const offersModel = new OffersModel(mockService);
-const pointsModel = new PointsModel(mockService);
+const destinationsModel = new DestinationsModel({
+  pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
+});
+const offersModel = new OffersModel({
+  pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
+});
+const pointsModel = new PointsModel({
+  pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
+});
 const filterModel = new FilterModel();
-
-const points = pointsModel.points;
-const allDestinations = destinationsModel.destinations;
 
 const tripPresenter = new TripPresenter({
   tripContainer: eventListElement,
@@ -41,9 +43,17 @@ const filterPresenter = new FilterPresenter({
   pointsModel
 });
 
-if (points.length) {
-  render(new HeaderView({points, allDestinations}), tripMain, RenderPosition.AFTERBEGIN);
-}
+const headerPresenter = new HeaderPresenter({
+  tripMainContainer: tripMain,
+  destinationsModel,
+  pointsModel,
+  offersModel,
+});
+
 
 filterPresenter.init();
 tripPresenter.init();
+headerPresenter.init();
+destinationsModel.init();
+offersModel.init();
+pointsModel.init();

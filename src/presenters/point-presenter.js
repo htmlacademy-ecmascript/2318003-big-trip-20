@@ -32,7 +32,7 @@ export default class PointPresenter {
   init(point) {
     this.#point = point;
     const destinationById = this.#destinationsModel.getById(this.#point.destination);
-    const offersByType = this.#offersModel.getByType(this.#point.type);
+    const offersById = this.#offersModel.getById(this.#point.type, this.#point.offers);
     const allDestinations = [...this.#destinationsModel.destinations];
     const allOffers = [...this.#offersModel.offers];
 
@@ -42,7 +42,7 @@ export default class PointPresenter {
     this.#pointComponent = new PointView({
       point: this.#point,
       destinationById: destinationById,
-      offersByType: offersByType,
+      offersById: offersById,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
@@ -111,7 +111,7 @@ export default class PointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handleDataChange(UserAction.UPDATE_POINT, UpdateType.PATCH,{...this.#point, isFavorite: !this.#point.isFavorite});
   };
 
   #handleCloseCLick = () => {

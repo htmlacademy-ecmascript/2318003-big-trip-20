@@ -1,10 +1,13 @@
-export default class DestinationsModel {
-  #service;
-  #destinations;
+import Observable from '../framework/observable.js';
+import {UpdateType} from '../constant.js';
 
-  constructor(service) {
-    this.#service = service;
-    this.#destinations = this.#service.getDestinations();
+export default class DestinationsModel extends Observable{
+  #destinations = [];
+  #pointsApiService = null;
+
+  constructor({pointsApiService}) {
+    super();
+    this.#pointsApiService = pointsApiService;
   }
 
   get destinations() {
@@ -19,5 +22,14 @@ export default class DestinationsModel {
   getByName(name) {
     return this.#destinations
       .find((destination) => destination.name === name);
+  }
+
+  async init() {
+    try {
+      this.#destinations = await this.#pointsApiService.destinations;
+    } catch (err) {
+      this.#destinations = [];
+    }
+    this._notify(UpdateType.INIT);
   }
 }
