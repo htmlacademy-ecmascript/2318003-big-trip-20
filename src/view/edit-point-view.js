@@ -1,5 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {formatStringToDateTime, capitalize} from '../utils.js';
+import {formatStringToDateTime} from '../utils/data-utils.js';
+import {capitalize} from '../utils/utils.js';
 import {WAYPOINT_TYPE, POINT_EMPTY} from '../constant.js';
 
 import flatpickr from 'flatpickr';
@@ -61,13 +62,18 @@ const createRollupTemplate = () => (
 );
 
 const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingMode}) => {
-  const {id, basePrice, dateFrom, dateTo, type, destination} = point;
+  const {id, basePrice, dateFrom, dateTo, type, destination, isDisabled, isSaving, isDeleting} = point;
   const pointDestination = (allDestinations && destination) ? allDestinations.find((wayPoint) => wayPoint.id === destination) : '';
   const cities = allDestinations.map((city) => city.name);
   const eventTypeMarkup = WAYPOINT_TYPE.map(createEventTypeTemplate).join('');
   const citiesMarkup = cities.map((city) => createItemOfCitiesTemplate(city)).join('');
   const pointOffers = (allOffers.length) ? allOffers.find((offer) => offer.type === type).offers : [];
   const offersListMarkup = (pointOffers.length) ? pointOffers.map((offer) => createOffersTemplate({offer, point})).join('') : '';
+
+  const disableTemplate = (isDisabled) ? 'disabled' : '';
+  const savingTemplate = (isSaving) ? 'saving...' : 'save';
+  const deletingTemplate = (isDeleting) ? 'deleting...' : 'delete';
+
 
   const destinationMarkup = (
     `<section class="event__section  event__section--destination">
@@ -101,7 +107,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${disableTemplate}>
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
@@ -117,7 +123,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
           <label class="event__label  event__type-output" for="event-destination-1">
             ${capitalize(type)}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(`${(destination && pointDestination) ? pointDestination.name : ''}`)}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(`${(destination && pointDestination) ? pointDestination.name : ''}`)}" list="destination-list-1" ${disableTemplate}>
           <datalist id="destination-list-1">
             ${citiesMarkup}
           </datalist>
@@ -125,10 +131,10 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatStringToDateTime(dateFrom)}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatStringToDateTime(dateFrom)}" ${disableTemplate}>
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatStringToDateTime(dateTo)}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatStringToDateTime(dateTo)}" ${disableTemplate}>
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -136,11 +142,11 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
             <span class="visually-hidden">${basePrice}</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(`${basePrice}`)}">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(`${basePrice}`)}" ${disableTemplate}>
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${(isCreatingMode) ? 'cancel' : 'delete'}</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${disableTemplate}>${savingTemplate}</button>
+        <button class="event__reset-btn" type="reset" ${disableTemplate}>${(isCreatingMode) ? 'cancel' : deletingTemplate}</button>
         ${(!isCreatingMode) ? createRollupTemplate() : ''}
       </header>
       <section class="event__details">
@@ -257,7 +263,7 @@ export default class EditPointView extends AbstractStatefulView{
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
     this._setState({
-      basePrice: evt.target.value,
+      basePrice: +evt.target.value,
     });
   };
 
@@ -319,11 +325,21 @@ export default class EditPointView extends AbstractStatefulView{
   };
 
   static parsePointToState(point) {
-    return {...point};
+    return {
+      ...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
+    };
   }
 
   static parseStateToPoint(state) {
     const point = {...state};
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+
     return point;
   }
 }

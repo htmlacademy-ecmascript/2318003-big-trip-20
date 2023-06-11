@@ -4,7 +4,7 @@ import {
   formatStringToShortDate,
   formatStringToTime,
   calculateTimeDifference
-} from '../utils.js';
+} from '../utils/data-utils.js';
 
 const createOfferTemplate = (offersList) => (
   offersList.map((offer) =>

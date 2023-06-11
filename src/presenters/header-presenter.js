@@ -28,6 +28,7 @@ export default class HeaderPresenter {
       destinationsModel: this.#destinationsModel,
       pointsModel: this.#pointsModel,
       offersModel: this.#offersModel,
+      isEmpty: this.#pointsModel.points.length !== 0
     });
 
     if (prevHeaderComponent === null) {

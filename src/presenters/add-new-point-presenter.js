@@ -1,6 +1,5 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
 import EditPointView from '../view/edit-point-view.js';
-import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../constant.js';
 
 export default class AddNewPointPresenter {
@@ -10,7 +9,7 @@ export default class AddNewPointPresenter {
   #destinationsModel = null;
   #offersModel = null;
 
-  #pointEditComponent = null;
+  #editPointComponent = null;
 
   constructor({listView, onDataChange, onDestroy, destinationsModel, offersModel}) {
     this.#listView = listView;
@@ -24,11 +23,11 @@ export default class AddNewPointPresenter {
     const allDestinations = [...this.#destinationsModel.destinations];
     const allOffers = [...this.#offersModel.offers];
 
-    if (this.#pointEditComponent !== null) {
+    if (this.#editPointComponent !== null) {
       return;
     }
 
-    this.#pointEditComponent = new EditPointView({
+    this.#editPointComponent = new EditPointView({
       onFormSubmit: this.#handleFormSubmit,
       allDestinations: allDestinations,
       allOffers: allOffers,
@@ -37,31 +36,49 @@ export default class AddNewPointPresenter {
       isCreatingMode: true
     });
 
-    render(this.#pointEditComponent, this.#listView, RenderPosition.AFTERBEGIN);
+    render(this.#editPointComponent, this.#listView, RenderPosition.AFTERBEGIN);
 
     document.addEventListener('keydown', this.#escKeyDownHandler);
   }
 
   destroy() {
-    if (this.#pointEditComponent === null) {
+    if (this.#editPointComponent === null) {
       return;
     }
 
     this.#handleDestroy();
 
-    remove(this.#pointEditComponent);
-    this.#pointEditComponent = null;
+    remove(this.#editPointComponent);
+    this.#editPointComponent = null;
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  setSaving() {
+    this.#editPointComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#editPointComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editPointComponent.shake(resetFormState);
   }
 
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      {id: nanoid(), ...point},
+      point
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
