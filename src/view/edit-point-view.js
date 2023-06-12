@@ -14,11 +14,11 @@ const createOffersTemplate = ({offer, point}) => {
   const isChecked = offers.includes(id) ? 'checked' : '';
 
   return (`<div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="${id}" type="checkbox" name="event-offer-${title}" ${isChecked}>
-    <label class="event__offer-label" for="${id}">
-      <span class="event__offer-title">${title}</span>
+    <input class="event__offer-checkbox  visually-hidden" id="${he.encode(`${id}`)}" type="checkbox" name="event-offer-${he.encode(`${title}`)}" ${isChecked}>
+    <label class="event__offer-label" for="${he.encode(`${id}`)}">
+      <span class="event__offer-title">${he.encode(`${title}`)}</span>
       &plus;&euro;&nbsp;
-      <span class="event__offer-price">${price}</span>
+      <span class="event__offer-price">${he.encode(`${price}`)}</span>
     </label>
   </div>`);
 };
@@ -28,18 +28,18 @@ const createEventTypeTemplate = (type) => {
 
   return (
     `<div class="event__type-item">
-      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-      <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${value}</label>
+      <input id="event-type-${he.encode(`${type}`)}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+      <label class="event__type-label  event__type-label--${he.encode(`${type}`)}" for="event-type-${he.encode(`${type}`)}-1">${he.encode(`${value}`)}</label>
     </div>`
   );
 };
 
-const createItemOfCitiesTemplate = (city) => `<option value="${city}"></option>`;
+const createItemOfCitiesTemplate = (city) => `<option value="${he.encode(`${city}`)}"></option>`;
 
 const createItemOfPhotosTemplate = ({picture}) => {
   const {src, description} = picture;
 
-  return (`<img class="event__photo" src=${src} alt=${description}>`);
+  return (`<img class="event__photo" src="${he.encode(`${src}`)}" alt="${he.encode(`${description}`)}">`);
 };
 
 const createPhotosMarkup = ({pointDestination}) => {
@@ -71,14 +71,14 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
   const offersListMarkup = (pointOffers.length) ? pointOffers.map((offer) => createOffersTemplate({offer, point})).join('') : '';
 
   const disableTemplate = (isDisabled) ? 'disabled' : '';
-  const savingTemplate = (isSaving) ? 'saving...' : 'save';
-  const deletingTemplate = (isDeleting) ? 'deleting...' : 'delete';
+  const savingTemplate = (isSaving) ? 'Saving...' : 'Save';
+  const deletingTemplate = (isDeleting) ? 'Deleting...' : 'Delete';
 
 
   const destinationMarkup = (
     `<section class="event__section  event__section--destination">
     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${(pointDestination)?.description}</p>
+      <p class="event__destination-description">${he.encode(`${(pointDestination)?.description}`)}</p>
       ${(isCreatingMode && destination) ? createPhotosMarkup({pointDestination}) : ''}
     </section>`
   );
@@ -103,9 +103,9 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
-          <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
+          <label class="event__type  event__type-btn" for="event-type-toggle-${he.encode(`${id}`)}">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${he.encode(`${type}`)}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${disableTemplate}>
 
@@ -121,7 +121,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${capitalize(type)}
+            ${he.encode(`${capitalize(type)}`)}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(`${(destination && pointDestination) ? pointDestination.name : ''}`)}" list="destination-list-1" ${disableTemplate}>
           <datalist id="destination-list-1">
@@ -139,14 +139,14 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
 
         <div class="event__field-group  event__field-group--price">
           <label class="event__label" for="event-price-1">
-            <span class="visually-hidden">${basePrice}</span>
+            <span class="visually-hidden">${he.encode(`${basePrice}`)}</span>
             &euro;
           </label>
           <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(`${basePrice}`)}" ${disableTemplate}>
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit" ${disableTemplate}>${savingTemplate}</button>
-        <button class="event__reset-btn" type="reset" ${disableTemplate}>${(isCreatingMode) ? 'cancel' : deletingTemplate}</button>
+        <button class="event__reset-btn" type="reset" ${disableTemplate}>${(isCreatingMode) ? 'Cancel' : deletingTemplate}</button>
         ${(!isCreatingMode) ? createRollupTemplate() : ''}
       </header>
       <section class="event__details">

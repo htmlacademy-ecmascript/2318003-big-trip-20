@@ -70,7 +70,7 @@ export default class TripPresenter {
     });
 
     this.#addNewPointPresenter = new AddNewPointPresenter({
-      listView: this.#tripContainer,
+      listView: this.#listView.element,
       onDataChange: this.#handleViewAction,
       onDestroy: handlePointFormClose,
       destinationsModel: this.#destinationsModel,
@@ -101,14 +101,6 @@ export default class TripPresenter {
 
   init() {
     this.#renderSort();
-
-    /* if (this.points.length) {
-      remove(this.#sortView);
-      this.#renderEmpty();
-
-      return;
-    } */
-
     render(this.#newPointButtonComponent, this.#tripMain, RenderPosition.BEFOREEND);
     this.#renderPoints();
   }
@@ -160,7 +152,7 @@ export default class TripPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearBoard();
+        this.#clearBoard({resetSortType: false});
         this.#renderBoard();
         break;
       case UpdateType.MAJOR:
@@ -189,9 +181,6 @@ export default class TripPresenter {
 
     this.#currentSortType = sortType;
     this.#clearBoard();
-    /* this.#renderPoints();
-    this.#removeSort();
-    this.#renderSort(); */
     this.#renderBoard();
   };
 
@@ -202,12 +191,8 @@ export default class TripPresenter {
       sortType: this.#currentSortType
     });
 
-    render(this.#sortView, this.#listView.element, RenderPosition.AFTERBEGIN);
+    render(this.#sortView, this.#listView.element, RenderPosition.BEFOREBEGIN);
   }
-
-  /*#removeSort() {
-    remove(this.#sortView);
-  } */
 
   #renderEmpty() {
     this.#emptyView = new EmptyView({
@@ -237,7 +222,7 @@ export default class TripPresenter {
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
-  #clearBoard({resetRenderedPointCount = false} = {}) {
+  #clearBoard(resetSortType = false) {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
     this.#addNewPointPresenter.destroy();
@@ -248,7 +233,7 @@ export default class TripPresenter {
       remove(this.#emptyView);
     }
 
-    if (resetRenderedPointCount) {
+    if (resetSortType) {
       this.#currentSortType = SortType.DAY;
     }
   }
