@@ -29,17 +29,15 @@ export default class HeaderPresenter {
 
   #renderHeader() {
     const prevHeaderComponent = this.#headerComponent;
-    const points = [...this.#pointsModel.points];
-    const allDestinations = [...this.#destinationsModel.destinations];
-    const summaryCheckedOffersPrice = this.#getSummaryCheckedOffersPrice();
-    const summaryBasePrice = this.#getSummaryBasePrice();
+    const points = this.#pointsModel.points;
+    const allDestinations = this.#destinationsModel.destinations;
+    const summaryPrice = this.#getSummaryPrice();
 
 
     this.#headerComponent = new HeaderView({
       points: points,
       allDestinations: allDestinations,
-      summaryBasePrice: summaryBasePrice,
-      summaryCheckedOffersPrice: summaryCheckedOffersPrice
+      summaryPrice: summaryPrice
     });
 
     if (prevHeaderComponent === null) {
@@ -59,19 +57,22 @@ export default class HeaderPresenter {
     this.init();
   };
 
-  #getSummaryBasePrice () {
-    return this.#pointsModel.points.reduce((accumulator, currentValue) => accumulator + currentValue.basePrice, 0);
-  }
+  #getSummaryPrice () {
+    const allOffers = this.#offersModel.offers;
 
-  #getSummaryCheckedOffersPrice () {
-    const allOffers = [...this.#offersModel.offers];
-    const getOfferPriceById = (id, type) => {
-      const offersByType = allOffers.find((offer) => offer.type === type).offers;
-      return offersByType.find((offer) => offer.id === id).price;
-    };
-    return this.#pointsModel.points.
-      map((point) => point.offers.length ? point.offers.map((offer) => getOfferPriceById(offer, point.type)) : []).
-      reduce((a, b) => a.concat(b)).
-      reduce((a, b) => a + b);
+    return this.#pointsModel.points.reduce((pointAcc, curPoint) => {
+      const offersByType = allOffers.find((offer) => offer.type === curPoint.type).offers;
+
+      const offersTotal = offersByType.reduce((offerAcc, curOffer) => {
+        if (curPoint.offers.includes(curOffer.id)) {
+          offerAcc += curOffer.price;
+        }
+
+        return offerAcc;
+      }, 0);
+      pointAcc += offersTotal + curPoint.basePrice;
+
+      return pointAcc;
+    }, 0);
   }
 }

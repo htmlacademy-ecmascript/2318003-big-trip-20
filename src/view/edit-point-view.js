@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {formatStringToDateTime} from '../utils/data-utils.js';
+import {formatStringToDateTime, isNotCorrectDateFrom} from '../utils/data-utils.js';
 import {capitalize} from '../utils/utils.js';
 import {WAYPOINT_TYPE, POINT_EMPTY} from '../constant.js';
 
@@ -123,7 +123,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
           <label class="event__label  event__type-output" for="event-destination-1">
             ${he.encode(`${capitalize(type)}`)}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(`${(destination && pointDestination) ? pointDestination.name : ''}`)}" list="destination-list-1" ${disableTemplate}>
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(`${(destination && pointDestination) ? pointDestination.name : ''}`)}" list="destination-list-1" ${disableTemplate} autocomplete="off">
           <datalist id="destination-list-1">
             ${citiesMarkup}
           </datalist>
@@ -142,7 +142,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
             <span class="visually-hidden">${he.encode(`${basePrice}`)}</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(`${basePrice}`)}" ${disableTemplate}>
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(`${basePrice}`)}" ${disableTemplate} autocomplete="off">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit" ${disableTemplate}>${savingTemplate}</button>
@@ -227,6 +227,10 @@ export default class EditPointView extends AbstractStatefulView{
     this.#setDatepickerTo();
   }
 
+  reset(point) {
+    this.updateElement(EditPointView.parsePointToState(point));
+  }
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
@@ -257,6 +261,10 @@ export default class EditPointView extends AbstractStatefulView{
       this.updateElement({
         destination: selectedDestination.id,
       });
+    } else {
+      this.updateElement({
+        destination: NaN
+      });
     }
   };
 
@@ -276,9 +284,16 @@ export default class EditPointView extends AbstractStatefulView{
   };
 
   #dateFromChangeHandler = ([userDate]) => {
-    this.updateElement({
-      dateFrom: userDate,
-    });
+    if (isNotCorrectDateFrom(this._state.dateTo, userDate)) {
+      this.updateElement({
+        dateFrom: userDate,
+        dateTo: userDate,
+      });
+    } else {
+      this.updateElement({
+        dateFrom: userDate,
+      });
+    }
   };
 
   #dateToChangeHandler = ([userDate]) => {

@@ -31,6 +31,8 @@ const isPatchUpdate = (point, update) => (
   dayjs(point.dateTo).isSame(update.dateTo)
 );
 
+const isNotCorrectDateFrom = (dateTo, userData) => dayjs(dateTo).isBefore(dayjs(userData)) || dayjs(dateTo).isSame(userData);
+
 export {
   humanizeDate,
   formatStringToDateTime,
@@ -38,5 +40,6 @@ export {
   formatStringToTime,
   calculateTimeDifference,
   getDateDiff,
-  isPatchUpdate
+  isPatchUpdate,
+  isNotCorrectDateFrom
 };
