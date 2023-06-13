@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {capitalize} from '../utils.js';
+import {capitalize} from '../utils/utils.js';
 
 const createFilterItemTemplate = (filter, currentFilterType) => {
   const {type, count} = filter;

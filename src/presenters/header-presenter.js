@@ -15,19 +15,29 @@ export default class HeaderPresenter {
     this.#destinationsModel = destinationsModel;
     this.#pointsModel = pointsModel;
     this.#offersModel = offersModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
-    this.#pointsModel.addObserver(this.#handleModelEvent);
+    if (this.#pointsModel.points.length) {
+      this.#renderHeader();
+    } else {
+      this.#destroyHeader();
+    }
   }
 
   #renderHeader() {
     const prevHeaderComponent = this.#headerComponent;
+    const points = this.#pointsModel.points;
+    const allDestinations = this.#destinationsModel.destinations;
+    const summaryPrice = this.#getSummaryPrice();
+
 
     this.#headerComponent = new HeaderView({
-      destinationsModel: this.#destinationsModel,
-      pointsModel: this.#pointsModel,
-      offersModel: this.#offersModel,
+      points: points,
+      allDestinations: allDestinations,
+      summaryPrice: summaryPrice
     });
 
     if (prevHeaderComponent === null) {
@@ -39,7 +49,30 @@ export default class HeaderPresenter {
     remove(prevHeaderComponent);
   }
 
+  #destroyHeader() {
+    remove(this.#headerComponent);
+  }
+
   #handleModelEvent = () => {
-    this.#renderHeader();
+    this.init();
   };
+
+  #getSummaryPrice () {
+    const allOffers = this.#offersModel.offers;
+
+    return this.#pointsModel.points.reduce((pointAcc, curPoint) => {
+      const offersByType = allOffers.find((offer) => offer.type === curPoint.type).offers;
+
+      const offersTotal = offersByType.reduce((offerAcc, curOffer) => {
+        if (curPoint.offers.includes(curOffer.id)) {
+          offerAcc += curOffer.price;
+        }
+
+        return offerAcc;
+      }, 0);
+      pointAcc += offersTotal + curPoint.basePrice;
+
+      return pointAcc;
+    }, 0);
+  }
 }

@@ -9,7 +9,7 @@ import FilterModel from './model/filter-model.js';
 
 import PointsApiService from './point-api-service.js';
 
-const AUTHORIZATION = 'Basic ry75Uim23Jop2103';
+const AUTHORIZATION = 'Basic ry75Uop2fg12jb103';
 const END_POINT = 'https://20.ecmascript.pages.academy/big-trip';
 
 const mainElement = document.querySelector('.page-main');
@@ -50,10 +50,9 @@ const headerPresenter = new HeaderPresenter({
   offersModel,
 });
 
-
 filterPresenter.init();
 tripPresenter.init();
 headerPresenter.init();
-destinationsModel.init();
-offersModel.init();
-pointsModel.init();
+
+Promise.all([destinationsModel.init(), offersModel.init()])
+  .then(() => pointsModel.init());
