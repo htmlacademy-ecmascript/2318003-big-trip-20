@@ -39,7 +39,7 @@ export default class SortView extends AbstractView{
   }
 
   #sortTypeChangeHandler = (evt) => {
-    if (evt.target.tagName !== 'LABEL') {
+    if (evt.target.tagName !== 'LABEL' || evt.target.dataset.sortType === SortType.EVENT || evt.target.dataset.sortType === SortType.OFFERS) {
       return;
     }
 
