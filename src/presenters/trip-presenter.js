@@ -154,16 +154,16 @@ export default class TripPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.clearBoard();
+        this.#clearBoard();
         this.#renderBoard();
         break;
       case UpdateType.MAJOR:
-        this.clearBoard({resetSortType: true});
+        this.#clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
-        this.clearBoard();
+        this.#clearBoard();
         this.#renderBoard();
         break;
       default:
@@ -182,12 +182,12 @@ export default class TripPresenter {
     }
 
     this.#currentSortType = sortType;
-    this.clearBoard();
+    this.#clearBoard();
     this.#renderBoard();
   };
 
-  renderError() {
-    this.#errorView = new ErrorView();
+  renderError(error) {
+    this.#errorView = new ErrorView(error);
     this.#newPointButtonComponent.element.disabled = true;
 
     render(this.#errorView, this.#tripContainer);
@@ -230,7 +230,7 @@ export default class TripPresenter {
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
-  clearBoard(resetSortType = false) {
+  #clearBoard(resetSortType = false) {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
     this.#addNewPointPresenter.destroy();

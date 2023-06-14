@@ -1,5 +1,4 @@
 import Observable from '../framework/observable.js';
-import {UpdateType} from '../constant.js';
 
 export default class DestinationsModel extends Observable{
   #destinations = [];
@@ -19,17 +18,11 @@ export default class DestinationsModel extends Observable{
       .find((destination) => destination.id === id);
   }
 
-  getByName(name) {
-    return this.#destinations
-      .find((destination) => destination.name === name);
-  }
-
   async init() {
     try {
       this.#destinations = await this.#pointsApiService.destinations;
     } catch (err) {
-      this.#destinations = [];
+      throw new Error ('Something went wrong while loading destinations...');
     }
-    this._notify(UpdateType.INIT);
   }
 }

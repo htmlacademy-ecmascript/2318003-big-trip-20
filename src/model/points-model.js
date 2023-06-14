@@ -78,9 +78,9 @@ export default class PointsModel extends Observable {
     try {
       const points = await this.#pointsApiService.points;
       this.#points = points.map(this.#adaptToClient);
-    } catch(err) {
-      this.#points = [];
+      this._notify(UpdateType.INIT);
+    } catch (err) {
+      throw new Error ('Something went wrong while loading points data...');
     }
-    this._notify(UpdateType.INIT);
   }
 }

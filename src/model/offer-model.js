@@ -1,5 +1,4 @@
 import Observable from '../framework/observable.js';
-import {UpdateType} from '../constant.js';
 
 export default class OffersModel extends Observable{
   #offers = [];
@@ -30,8 +29,7 @@ export default class OffersModel extends Observable{
     try {
       this.#offers = await this.#pointsApiService.offers;
     } catch (err) {
-      this.#offers = [];
+      throw new Error ('Something went wrong while loading offers...');
     }
-    this._notify(UpdateType.INIT);
   }
 }
