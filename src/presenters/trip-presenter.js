@@ -13,6 +13,7 @@ import SortView from '../view/sort-view.js';
 import EmptyView from '../view/list-empty-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NewPointButtonView from '../view/new-point-button-view.js';
+import ErrorView from '../view/error-view.js';
 
 import PointPresenter from './point-presenter.js';
 import AddNewPointPresenter from './add-new-point-presenter.js';
@@ -34,6 +35,7 @@ export default class TripPresenter {
 
   #sortView = null;
   #emptyView = null;
+  #errorView = null;
   #isLoading = true;
 
   #pointPresenters = new Map();
@@ -152,16 +154,16 @@ export default class TripPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearBoard({resetSortType: false});
+        this.clearBoard();
         this.#renderBoard();
         break;
       case UpdateType.MAJOR:
-        this.#clearBoard({resetSortType: true});
+        this.clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
-        this.#clearBoard({resetSortType: true});
+        this.clearBoard();
         this.#renderBoard();
         break;
       default:
@@ -180,10 +182,16 @@ export default class TripPresenter {
     }
 
     this.#currentSortType = sortType;
-    this.#clearBoard();
+    this.clearBoard();
     this.#renderBoard();
   };
 
+  renderError() {
+    this.#errorView = new ErrorView();
+    this.#newPointButtonComponent.element.disabled = true;
+
+    render(this.#errorView, this.#tripContainer);
+  }
 
   #renderSort() {
     this.#sortView = new SortView({
@@ -222,7 +230,7 @@ export default class TripPresenter {
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
-  #clearBoard(resetSortType = false) {
+  clearBoard(resetSortType = false) {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
     this.#addNewPointPresenter.destroy();

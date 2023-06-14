@@ -27,8 +27,8 @@ const calculateTimeDifference = (firstDate, secondDate) => {
 const getDateDiff = (dateOne, dateTwo) => dayjs(dateOne).unix() - dayjs(dateTwo).unix();
 
 const isPatchUpdate = (point, update) => (
-  dayjs(point.dateFrom).isSame(update.dateFrom) &&
-  dayjs(point.dateTo).isSame(update.dateTo)
+  (dayjs(point.dateFrom).isSame(update.dateFrom) && dayjs(point.dateTo).isSame(update.dateTo)) &&
+  (point.basePrice === update.basePrice)
 );
 
 const isNotCorrectDateFrom = (dateTo, userData) => dayjs(dateTo).isBefore(dayjs(userData)) || dayjs(dateTo).isSame(userData);

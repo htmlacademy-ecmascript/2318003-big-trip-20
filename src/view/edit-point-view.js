@@ -23,13 +23,14 @@ const createOffersTemplate = ({offer, point}) => {
   </div>`);
 };
 
-const createEventTypeTemplate = (type) => {
-  const value = capitalize(type);
+const createEventTypeTemplate = (waypointType, point) => {
+  const value = capitalize(waypointType);
+  const isCheckedType = (waypointType === point.type) ? 'checked' : '';
 
   return (
     `<div class="event__type-item">
-      <input id="event-type-${he.encode(`${type}`)}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-      <label class="event__type-label  event__type-label--${he.encode(`${type}`)}" for="event-type-${he.encode(`${type}`)}-1">${he.encode(`${value}`)}</label>
+      <input id="event-type-${he.encode(`${waypointType}`)}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${waypointType}" ${isCheckedType}>
+      <label class="event__type-label  event__type-label--${he.encode(`${waypointType}`)}" for="event-type-${he.encode(`${waypointType}`)}-1">${he.encode(`${value}`)}</label>
     </div>`
   );
 };
@@ -65,7 +66,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
   const {id, basePrice, dateFrom, dateTo, type, destination, isDisabled, isSaving, isDeleting} = point;
   const pointDestination = (allDestinations && destination) ? allDestinations.find((wayPoint) => wayPoint.id === destination) : '';
   const cities = allDestinations.map((city) => city.name);
-  const eventTypeMarkup = WAYPOINT_TYPE.map(createEventTypeTemplate).join('');
+  const eventTypeMarkup = WAYPOINT_TYPE.map((waypointType) => createEventTypeTemplate(waypointType, point)).join('');
   const citiesMarkup = cities.map((city) => createItemOfCitiesTemplate(city)).join('');
   const pointOffers = (allOffers.length) ? allOffers.find((offer) => offer.type === type).offers : [];
   const offersListMarkup = (pointOffers.length) ? pointOffers.map((offer) => createOffersTemplate({offer, point})).join('') : '';
@@ -79,7 +80,7 @@ const createEditPointTemplate = ({point, allDestinations, allOffers, isCreatingM
     `<section class="event__section  event__section--destination">
     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${he.encode(`${(pointDestination)?.description}`)}</p>
-      ${(isCreatingMode && destination) ? createPhotosMarkup({pointDestination}) : ''}
+      ${(destination) ? createPhotosMarkup({pointDestination}) : ''}
     </section>`
   );
 
@@ -221,7 +222,7 @@ export default class EditPointView extends AbstractStatefulView{
       this.element.querySelector('.event__available-offers').addEventListener('change', this.#chooseOfferHandler);
     }
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
-    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceChangeHandler);
 
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
@@ -270,34 +271,40 @@ export default class EditPointView extends AbstractStatefulView{
 
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
-    this._setState({
-      basePrice: +evt.target.value,
-    });
+    if (Number(evt.target.value) > 0) {
+      this._setState({
+        basePrice: Number(evt.target.value),
+      });
+    } else {
+      this._setState({
+        basePrice: '',
+      });
+    }
   };
 
   #chooseOfferHandler = (evt) => {
     evt.preventDefault();
     const newOffer = evt.target.checked ? [...this._state.offers, evt.target.id] : this._state.offers.filter((offer) => offer !== evt.target.id);
-    this.updateElement({
+    this._setState({
       offers: newOffer
     });
   };
 
   #dateFromChangeHandler = ([userDate]) => {
     if (isNotCorrectDateFrom(this._state.dateTo, userDate)) {
-      this.updateElement({
+      this._setState({
         dateFrom: userDate,
         dateTo: userDate,
       });
     } else {
-      this.updateElement({
+      this._setState({
         dateFrom: userDate,
       });
     }
   };
 
   #dateToChangeHandler = ([userDate]) => {
-    this.updateElement({
+    this._setState({
       dateTo: userDate,
     });
   };
