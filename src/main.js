@@ -54,9 +54,8 @@ filterPresenter.init();
 tripPresenter.init();
 headerPresenter.init();
 
-Promise.all([destinationsModel.init(), offersModel.init()])
+Promise.all([destinationsModel.init(),offersModel.init()])
   .then(() => pointsModel.init())
-  .catch(() => {
-    tripPresenter.clearBoard();
-    tripPresenter.renderError();
+  .catch((error) => {
+    tripPresenter.renderError(error);
   });

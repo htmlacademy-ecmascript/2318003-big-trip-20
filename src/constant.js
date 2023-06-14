@@ -44,6 +44,8 @@ const UpdateType = {
   INIT: 'INIT',
 };
 
+const DEFAULT_ERROR_MESSAGE = 'Something went wrong... Please, try again';
+
 export {
   WAYPOINT_TYPE,
   POINT_EMPTY,
@@ -51,5 +53,6 @@ export {
   SortType,
   HEADER_POINT_COUNT,
   UserAction,
-  UpdateType
+  UpdateType,
+  DEFAULT_ERROR_MESSAGE
 };
